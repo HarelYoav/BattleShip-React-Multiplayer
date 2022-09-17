@@ -1,15 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import PlayerCard from './PlayerCard';
 import SocketContext  from '../contexts/Socket/SocketContext';
 
 
-export const OnlinePlayersList = () => {
+const OnlinePlayersList = () => {
 
   const { socket, uid, users} = useContext(SocketContext).SocketState;
   const oponents = users.filter(user => user.socketId !== socket?.id);
 
   return (
     <div>
+      <h1>{socket?.id}</h1>
       {oponents.map(user => 
         <PlayerCard 
           key={user.socketId} 
@@ -20,4 +21,6 @@ export const OnlinePlayersList = () => {
       )}
     </div>
   )
-}
+};
+
+export default OnlinePlayersList;

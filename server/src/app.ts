@@ -25,7 +25,7 @@ class App {
         //Listen to port
         this.port = port;
 
-        this.initialiseDatabaseConnection();
+        // this.initialiseDatabaseConnection();
         this.initialiseMiddleware();
         this.initialiseControllers(controllers);
         this.initialiseErrorHandling();

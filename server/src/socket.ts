@@ -4,7 +4,7 @@ import { Socket, Server } from 'socket.io';
 interface IUser {
   id: string;
   socketId: string;
-  isFreeToPlay: boolean;
+  inGame: boolean;
 }
 
 export class ServerSocket {
@@ -54,7 +54,7 @@ export class ServerSocket {
       }
 
       // Create new user
-      this.users[id] = {id: id, socketId: socket.id, isFreeToPlay: true};
+      this.users[id] = {id: id, socketId: socket.id, inGame: false};
       const users = Object.values(this.users);
 
       console.info('Sending callback for handshake');
@@ -73,13 +73,13 @@ export class ServerSocket {
     });
 
     socket.on('confirm_play', (uid: string, socketId: string, callback:(users: IUser[]) => void) => {
-      this.users[uid].isFreeToPlay = false;
+      this.users[uid].inGame = true;
       const oponentUid = this.GetUidFromSocketId(socketId);
       if(oponentUid) {
-        this.users[oponentUid].isFreeToPlay = false;
+        this.users[oponentUid].inGame = true;
+        this.io.to(socketId).emit('confim_play', this.users[oponentUid]);
       }
       
-      this.io.to(socketId).emit('confim_play');
       const users = Object.values(this.users);
       socket.broadcast.emit('in_game', users);
 

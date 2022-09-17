@@ -7,17 +7,21 @@ export interface ISocketContextState {
     uid: string;
     users: IUser[];
     play_invitations: string[];
+    play_against: IUser | null;
 }
 
 export const defaultSocketContextState: ISocketContextState = {
     socket: undefined,
     uid: '',
     users: [],
-    play_invitations: []
+    play_invitations: [],
+    play_against: null
 };
 
-export type TSocketContextActions = 'update_socket' | 'update_uid' | 'update_users' | 'add_invited' | 'remove_invited' | 'remove_user';
-export type TSocketContextPayload = string | IUser[] | Socket| string[];
+export type TSocketContextActions = 'update_socket' | 'update_uid' | 'update_users' | 'add_invited' 
+                                        | 'remove_invited' | 'remove_user'| 'update_play_against';
+
+export type TSocketContextPayload = string | IUser[] | Socket| string[]| IUser| null;
 
 export interface ISocketContextActions {
     type: TSocketContextActions;
@@ -34,12 +38,14 @@ export const SocketReducer = (state: ISocketContextState, action: ISocketContext
             return { ...state, uid: action.payload as string };
         case 'update_users':
             return { ...state, users: action.payload as IUser[] };
+        case 'remove_user':
+            return { ...state, users: state.users.filter((user) => user.socketId !== (action.payload as string)) };
         case 'add_invited':
             return { ...state, play_invitations: [...state.play_invitations, action.payload as string] };
         case 'remove_invited':
             return { ...state, play_invitations: state.play_invitations.filter((sokcetid) => sokcetid !== (action.payload as string)) };
-        case 'remove_user':
-            return { ...state, users: state.users.filter((user) => user.socketId !== (action.payload as string)) };
+        case 'update_play_against':
+            return { ...state, play_against: action.payload as IUser || action.payload as null };
         default:
             return state;
     }

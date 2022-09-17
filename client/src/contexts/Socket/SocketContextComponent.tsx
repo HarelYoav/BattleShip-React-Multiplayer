@@ -2,6 +2,8 @@ import { PropsWithChildren, useEffect, useReducer, useState } from 'react';
 import { useSocket } from '../../hooks/useSocket';
 import { defaultSocketContextState, SocketContextProvider, SocketReducer } from './SocketContext';
 import { IUser } from '../../types';
+import { useNavigate } from "react-router-dom";
+
 
 interface IProps extends PropsWithChildren{
   id: string;
@@ -10,29 +12,15 @@ interface IProps extends PropsWithChildren{
 const SocketContext = (props : IProps) => {
 
   const { children } = props;
+  const navigate = useNavigate();
 
   const [SocketState, SocketDispatch] = useReducer(SocketReducer, defaultSocketContextState);
   const [loading, setLoading] = useState(true);
-  const socket = useSocket('ws://localhost:8080', {
+  const socket = useSocket('ws://localhost:5000', {
     reconnectionAttempts: 5,
     reconnectionDelay: 5000,
     autoConnect: false
   });
-
-  useEffect(() => {
-    //Connect to the Web socket
-    socket.connect();
-
-    //Save socket in conntext
-    SocketDispatch({ type: 'update_socket', payload: socket });
-
-    //start listeners
-    StartListenres();
-
-    //send the handshake
-    SendHandShake(props.id);
-
-  }, []);
 
   const StartListenres = () => {
     //reconnect event
@@ -78,6 +66,11 @@ const SocketContext = (props : IProps) => {
       SocketDispatch({ type: 'update_users', payload: users});
     });
 
+    socket.on('confim_play', (user: IUser) => {
+      SocketDispatch({ type: 'update_play_against', payload: user});
+      navigate('/game');
+    });
+
   };
 
   const SendHandShake = (id: string) => {
@@ -91,6 +84,21 @@ const SocketContext = (props : IProps) => {
       setLoading(false);
     });
   };
+
+  useEffect(() => {
+    //Connect to the Web socket
+    socket.connect();
+
+    //Save socket in conntext
+    SocketDispatch({ type: 'update_socket', payload: socket });
+
+    //start listeners
+    StartListenres();
+
+    //send the handshake
+    SendHandShake(props.id);
+
+  }, []);
 
   if(loading) return <p>Loading Socket IO...</p>
   

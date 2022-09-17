@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
+import { useNavigate } from "react-router-dom";
 import SocketContext  from '../contexts/Socket/SocketContext';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -23,20 +24,26 @@ const PlayerCard = ({ user, uid, socket }: IPorps) => {
   const { SocketDispatch } = useContext(SocketContext);
   const [isInvited, setIsinvited] = useState(false);
   const [iInvited, setIInvited] = useState(false);
+  const navigate = useNavigate();
 
+  //current user invite other player to play
   const inviteToPlay = () => {
     socket?.emit('invite_play', user.socketId);
     setIsinvited(true);
   };
-
+  //current user cancel invitation of other player
   const cancelInviation = () => {
     socket?.emit('cancel_invite_play', user.socketId);
     setIsinvited(false)
   };
 
+  //current user confirm invitation
   const confirmInvitation = () => {
     socket?.emit('confirm_play', uid, user.socketId, (users: IUser[]) => {
       SocketDispatch({ type: 'update_users', payload: users});
+      user.inGame= true;
+      SocketDispatch({type: 'update_play_against', payload: user});
+      navigate('/game');
     });
   }
 
@@ -45,10 +52,10 @@ const PlayerCard = ({ user, uid, socket }: IPorps) => {
 
   useEffect(() => {
     setIInvited(play_invitations.includes(user.socketId));
-  }, [play_invitations])
+  }, [play_invitations, user.socketId])
 
   
-  if (iInvited && user.isFreeToPlay)  {
+  if (iInvited && !user.inGame)  {
     return (
       <Card sx={{ maxWidth: 350, bgcolor: '#fff59d' }} color="success" variant="outlined" className='flex m-auto mb-1'>
         <Avatar className='m-auto'>U</Avatar>
@@ -78,9 +85,9 @@ const PlayerCard = ({ user, uid, socket }: IPorps) => {
         </Typography>
       </CardContent>
       <CardActions>
-      {user.isFreeToPlay ? (
+      {!user.inGame ? (
         !isInvited ? 
-          (user.isFreeToPlay &&
+          (!user.inGame &&
             <Button 
               onClick={inviteToPlay}
               size="small">
