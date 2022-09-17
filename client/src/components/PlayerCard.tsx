@@ -1,0 +1,112 @@
+import { useEffect, useState, useContext } from 'react';
+import SocketContext  from '../contexts/Socket/SocketContext';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Avatar from '@mui/material/Avatar';
+import VideogameAssetSharpIcon from '@mui/icons-material/VideogameAssetSharp';
+import { IUser } from '../types';
+import { Socket } from 'socket.io-client';
+
+
+interface IPorps {
+  user: IUser;
+  uid: string;
+  socket: Socket | undefined;
+}
+
+const PlayerCard = ({ user, uid, socket }: IPorps) => {
+
+  const { play_invitations } = useContext(SocketContext).SocketState;
+  const { SocketDispatch } = useContext(SocketContext);
+  const [isInvited, setIsinvited] = useState(false);
+  const [iInvited, setIInvited] = useState(false);
+
+  const inviteToPlay = () => {
+    socket?.emit('invite_play', user.socketId);
+    setIsinvited(true);
+  };
+
+  const cancelInviation = () => {
+    socket?.emit('cancel_invite_play', user.socketId);
+    setIsinvited(false)
+  };
+
+  const confirmInvitation = () => {
+    socket?.emit('confirm_play', uid, user.socketId, (users: IUser[]) => {
+      SocketDispatch({ type: 'update_users', payload: users});
+    });
+  }
+
+  useEffect(() => {
+  }, [isInvited]);
+
+  useEffect(() => {
+    setIInvited(play_invitations.includes(user.socketId));
+  }, [play_invitations])
+
+  
+  if (iInvited && user.isFreeToPlay)  {
+    return (
+      <Card sx={{ maxWidth: 350, bgcolor: '#fff59d' }} color="success" variant="outlined" className='flex m-auto mb-1'>
+        <Avatar className='m-auto'>U</Avatar>
+        <CardContent>
+          <Typography variant="body2" color='white'>
+            {user.socketId} Invited you to play
+          </Typography>
+        </CardContent>
+        <CardActions>
+          <Button 
+            onClick={confirmInvitation}
+            size="small"
+          >
+            Confirm
+          </Button>
+        </CardActions>
+      </Card>
+    )
+  }
+
+  return (
+    <Card sx={{ maxWidth: 350 }} variant="outlined" className='flex m-auto mb-1'>
+      <Avatar className='m-auto'>U</Avatar>
+      <CardContent>
+        <Typography variant="body2">
+          {user.socketId}
+        </Typography>
+      </CardContent>
+      <CardActions>
+      {user.isFreeToPlay ? (
+        !isInvited ? 
+          (user.isFreeToPlay &&
+            <Button 
+              onClick={inviteToPlay}
+              size="small">
+                Play
+            </Button>
+          ) : (
+            <Button 
+              onClick={cancelInviation}
+              variant="outlined" 
+              color="error"
+              size="small"
+            >
+              Cancel
+            </Button>
+        )
+      ) : (
+        <Typography variant="body2">
+          <span className='mr-1'>In game</span> 
+          <VideogameAssetSharpIcon/>
+        </Typography>
+      )}
+        
+        
+      </CardActions>
+    </Card>
+  );
+}
+
+export default PlayerCard
