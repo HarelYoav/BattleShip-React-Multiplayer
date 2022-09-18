@@ -10,13 +10,19 @@ export interface IShip {
   icon:string;
   spaces: number;
   rotate: boolean;
+  isPlaced: boolean;
+  coordinates: {
+    row: number;
+    col: number;
+  }
 }
 
 export interface ICell {
+  coordinates: {
+    row: number;
+    col: number;
+  }
   isSelected: boolean;
   isShip: boolean;
-  coordinates: {
-    x: number;
-    y: number;
-  }
+  shipId: number;
 }

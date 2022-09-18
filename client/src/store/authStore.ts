@@ -1,41 +1,37 @@
-// import { useContext } from 'react';
 import create from 'zustand';
-// import { persist } from 'zustand/middleware';
-// import { IUser } from '../types';
-// import SocketContext  from '../contexts/Socket/SocketContext';
+import { persist } from 'zustand/middleware';
+import { IShip } from '../types';
 
 
-// type UserStore = {
-  // userProfile: IUser | null;
-//   allUsers: IUser[] | [];
-//   topic: string | null;
-//   addUser: (user: IUser) => void;
-//   removeUser: () => void;
-//   getAllUsers: () => void;
-//   setSearchTopic: (topic: string) => void;
+
+// type SelectedShipStore = {
+//   selectedShip: IShip | null;
+//   setSelectedShip: (selectedShip: IShip) => void;
 // }
 
 
-// const UseAuthStore = create<UserStore>()(persist( set => ({
-//   userProfile: null,
-//   allUsers: [],
-//   topic: null,
-//   addUser(user: IUser) {
-//     set({ userProfile: user });
+// const ShipStore = create<SelectedShipStore>()(persist( set => ({
+//   selectedShip: null,
+//   setSelectedShip(ship: IShip) {
+//     set({ selectedShip: ship });
 //   },
-//   removeUser() {
-//     set({ userProfile: null });
-//   },
-//   async getAllUsers() {
-//     const { users } = useContext(SocketContext).SocketState;;
-//     set({ allUsers: users });
-//   },
-//   async setSearchTopic(topic: string) {
-//     set({topic: topic});
-//   }
-
+ 
 // })));
-   
+type SelectedShipStore = {
+  selectedShip: IShip | null;
+  setSelectedShip: (selectedShip: IShip | null) => void;
+}
 
 
-// export default UseAuthStore;
+const ShipStore = create<SelectedShipStore>()(( set => ({
+  selectedShip: null,
+  setSelectedShip(ship: IShip| null) {
+    set({ selectedShip: ship });
+  },
+ 
+})));
+
+
+  
+
+export {ShipStore};

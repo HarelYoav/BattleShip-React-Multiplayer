@@ -1,34 +1,49 @@
-import {useState} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import {Card, CardActionArea, CardContent, Typography, Button} from '@mui/material';
 import CachedIcon from '@mui/icons-material/Cached';
 import { IShip } from '../types';
+import {ShipStore} from '../store/authStore';
+
+
 
 interface IProps {
   ship: IShip
-  setSelectedShip: React.Dispatch<React.SetStateAction<IShip | undefined>>;
   selected: boolean;
   setShips: React.Dispatch<React.SetStateAction<IShip[]>>;
   ships: IShip[];
 }
 
-const Ship = ({ship, selected, setSelectedShip, ships}: IProps) => {
+const Ship = ({ship, selected, ships, setShips}: IProps) => {
 
   const [rotate, setRotate] = useState(false);
+  const { setSelectedShip } = ShipStore();
+
   const mainStyle = selected ? 'border-2 border-indigo-600 m-auto' : 'm-auto' 
   const iconStyle = rotate ? 'w-10 h-10 rotate-90' : 'w-10 h-10';
 
-  console.log(selected)
-
-  const rotateShip = async () => {
-    await setRotate(current => !current)
+  const rotateShip = () => {
+    setRotate(current => !current)
     const updatedShips = [...ships]
     updatedShips[ship.id].rotate = rotate;
+    setShips(updatedShips);
+
   }
 
-  const selectShip = () => {
+  const selectShip = useCallback(() => {
     ship.rotate = rotate;
     setSelectedShip(ship)
-  }
+  }, [rotate, setSelectedShip, ship])
+
+  useEffect(() => {
+    if(selected) {
+      selectShip();
+    }
+  }, [rotate, selectShip, selected])
+
+  
+  console.log('Ship')
+
+  if (ship.isPlaced) return null;
 
   return (
     <div>
