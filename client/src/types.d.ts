@@ -25,4 +25,15 @@ export interface ICell {
   isSelected: boolean;
   isShip: boolean;
   shipId: number;
+  shootOn: boolean;
 }
+
+export interface IOpponentCell {
+  coordinates: {
+    row: number;
+    col: number;
+  }
+  state: 'free' | 'missed' | 'hit';
+}
+
+

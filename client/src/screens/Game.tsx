@@ -1,27 +1,25 @@
 import { useContext, useState, useEffect } from 'react'
 import SocketContext from '../contexts/Socket/SocketContext';
 import Board from '../components/Board';
-import { IShip, ICell } from '../types';
-import { ShipStore } from '../store/authStore';
+import { IShip, ICell, IOpponentCell } from '../types';
+import { ShipStore, BoardStore } from '../store/authStore';
 import ShipsContainer from '../components/ShipsContainer';
+import OpponentBoard from '../components/OpponentBoard';
 import { shipsData } from '../utils/shipsData';
-
-
-
 
 
 const Game = () => {
 
+  const boardSize = 10;
   const { socket, play_against} = useContext(SocketContext).SocketState;
   const { selectedShip, setSelectedShip } = ShipStore();
-
-  const boardSize = 10;
-  
-  const [board, setBoard] = useState<ICell[][]>(new Array(boardSize));
+  const {board, setBoard} = BoardStore();
+  // const [board, setBoard] = useState<ICell[][]>(new Array(boardSize));
   const [ships, setShips] = useState<IShip[]>(shipsData);
+  const [isGame, setIsGame] = useState(false);
 
   const createBoard = () => {
-    const newBoard= [...board];
+    const newBoard = [...board];
 
     for(let row = 0; row < boardSize; row++) {
       newBoard[row] = new Array(boardSize)
@@ -33,7 +31,8 @@ const Game = () => {
           },
           isSelected: false,
           isShip: false,
-          shipId: -1
+          shipId: -1,
+          shootOn: false
         };
         newBoard[row][col] = cell;
       }
@@ -43,12 +42,11 @@ const Game = () => {
   }
 
   //This function is called when click on board cell
-  const cellClicked = (cell: ICell) => {
+  const cellClicked = (cell: ICell | IOpponentCell) => {
     //if selected ship invoke placeShip function
-    if(selectedShip) placeShip(cell.coordinates)
-    else if(cell.isShip) removeShipFromBoard(cell.shipId)
-
-
+    const tmpCell = cell as ICell;
+    if(selectedShip) placeShip(cell.coordinates);
+    else if(tmpCell.isShip) removeShipFromBoard(tmpCell.shipId);
   }
 
   const removeShipFromBoard = (shipId: number) => {
@@ -79,18 +77,18 @@ const Game = () => {
     //exit the function if no selected ship to place
     if(!selectedShip) return;
     //board to update
-    const updateBoard = [...board];
+    const updatedBoard = [...board];
     if(selectedShip.rotate) { //Place ship vertically
       //if the location is not fit to the ship size
       if (!(((selectedShip.spaces + coordinates.row) - 1) < 10)) return;//replace 10 to boardSize
       //check if all the cells are empty and return if one of the cell has ship on it
       for(let i = coordinates.row; i < (selectedShip.spaces + coordinates.row); i++) {
-        if(updateBoard[i][coordinates.col].isShip) return;
+        if(updatedBoard[i][coordinates.col].isShip) return;
       }
       //place the ship on the board
       for(let i = coordinates.row; i < (selectedShip.spaces + coordinates.row); i++) {
-        updateBoard[i][coordinates.col].isShip = true;
-        updateBoard[i][coordinates.col].shipId = selectedShip.id;
+        updatedBoard[i][coordinates.col].isShip = true;
+        updatedBoard[i][coordinates.col].shipId = selectedShip.id;
       }
         
     } else { //Place ship horizontal
@@ -98,16 +96,16 @@ const Game = () => {
       if (!(((selectedShip.spaces + coordinates.col) - 1) < 10)) return;//replace 10 to boardSize
       //check if all the cells are empty and return if one of the cell has ship on it
       for(let i = coordinates.col; i < (selectedShip.spaces + coordinates.col); i++) {
-        if(updateBoard[coordinates.row][i].isShip) return;
+        if(updatedBoard[coordinates.row][i].isShip) return;
       }
       //place the ship on the board
       for(let i = coordinates.col; i < (selectedShip.spaces + coordinates.col); i++) {
-        updateBoard[coordinates.row][i].isShip = true;
-        updateBoard[coordinates.row][i].shipId = selectedShip.id;
+        updatedBoard[coordinates.row][i].isShip = true;
+        updatedBoard[coordinates.row][i].shipId = selectedShip.id;
       }
     }
     //set the updated board with the new ship
-    setBoard(updateBoard);
+    setBoard(updatedBoard);
     selectedShip.isPlaced = true;
     selectedShip.coordinates = coordinates;
     const updatedShips = ships.map(ship => {
@@ -128,7 +126,7 @@ const Game = () => {
     createBoard();
   }, [])
 
-  console.log('Game')
+  console.log(board)
 
   return (
     <div
@@ -139,7 +137,12 @@ const Game = () => {
       </div>
       <div className='grid grid-cols-1 xl:grid-cols-2'>
         <Board board={board} cellClicked={cellClicked}/>
-        <ShipsContainer ships={ships} setShips={setShips}/>
+        {!isGame ? 
+          <ShipsContainer ships={ships} setShips={setShips} setIsGame={setIsGame}/>
+          :
+          <OpponentBoard boardSize={boardSize}/>
+        }
+        
       </div>
     </div>
   )

@@ -1,37 +1,54 @@
 import create from 'zustand';
 import { persist } from 'zustand/middleware';
-import { IShip } from '../types';
+import { IShip, ICell } from '../types';
 
 
-
-// type SelectedShipStore = {
-//   selectedShip: IShip | null;
-//   setSelectedShip: (selectedShip: IShip) => void;
+// type BoardStoreState = {
+//   board: ICell[][];
+//   setBoard: (board: ICell[][]) => void;
 // }
 
 
-// const ShipStore = create<SelectedShipStore>()(persist( set => ({
-//   selectedShip: null,
-//   setSelectedShip(ship: IShip) {
-//     set({ selectedShip: ship });
+// const BoardStore = create<BoardStoreState>()(persist( set => ({
+//   board: new Array(10),
+//   setBoard(board: ICell[][]) {
+//     set({ board: board });
 //   },
  
 // })));
+
+type BoardStoreState = {
+  board: ICell[][];
+  setBoard: (board: ICell[][]) => void;
+  getBoard: () => ICell[][];
+}
+
+
+const BoardStore = create<BoardStoreState>()(set => ({
+  board: new Array(10),
+  setBoard(board: ICell[][]) {
+    set({ board: board });
+  },
+  getBoard() {
+    return this.board;
+  }
+}));
+
 type SelectedShipStore = {
   selectedShip: IShip | null;
   setSelectedShip: (selectedShip: IShip | null) => void;
 }
 
 
-const ShipStore = create<SelectedShipStore>()(( set => ({
+const ShipStore = create<SelectedShipStore>()(set => ({
   selectedShip: null,
   setSelectedShip(ship: IShip| null) {
     set({ selectedShip: ship });
   },
  
-})));
+}));
 
 
   
 
-export {ShipStore};
+export {ShipStore, BoardStore};

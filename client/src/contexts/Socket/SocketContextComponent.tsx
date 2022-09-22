@@ -3,6 +3,7 @@ import { useSocket } from '../../hooks/useSocket';
 import { defaultSocketContextState, SocketContextProvider, SocketReducer } from './SocketContext';
 import { IUser } from '../../types';
 import { useNavigate } from "react-router-dom";
+import { BoardStore } from '../../store/authStore';
 
 
 interface IProps extends PropsWithChildren{
@@ -10,10 +11,10 @@ interface IProps extends PropsWithChildren{
 }
 
 const SocketContext = (props : IProps) => {
-
+  
   const { children } = props;
   const navigate = useNavigate();
-
+  const {getBoard, setBoard} = BoardStore();
   const [SocketState, SocketDispatch] = useReducer(SocketReducer, defaultSocketContextState);
   const [loading, setLoading] = useState(true);
   const socket = useSocket('ws://localhost:5000', {
@@ -53,22 +54,30 @@ const SocketContext = (props : IProps) => {
     socket.on('user_disconnected', (users: IUser[]) => {
       SocketDispatch({ type: 'update_users', payload: users});
     });
-
+    //Listen on coming invitation
     socket.on('invite_play', (socketId) => {
       SocketDispatch({ type: 'add_invited', payload: socketId});
     });
-
+    // listen on cancel coming invitation
     socket.on('cancel_invite_play', socketId => {
       SocketDispatch({ type: 'remove_invited', payload: socketId});
     });
-
+    //when 2 players start game, a in_game events will be sent to all the other players
+    // to notify them which players are currently in a game
     socket.on('in_game', (users: IUser[]) => {
       SocketDispatch({ type: 'update_users', payload: users});
     });
-
+    //listen to confirmation to play from other players, who the current user ivited them
+    //This event will start the game between 2 players
     socket.on('confim_play', (user: IUser) => {
       SocketDispatch({ type: 'update_play_against', payload: user});
       navigate('/game');
+    });
+    //this event get trigger when the oponent shoots
+    socket.on('shoot', (coordinates: {row: number, col: number}) => {
+      
+      const board = getBoard();
+      console.log(board)
     });
 
   };

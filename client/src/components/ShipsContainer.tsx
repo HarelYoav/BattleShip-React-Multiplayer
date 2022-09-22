@@ -7,9 +7,10 @@ import {Button} from '@mui/material'
 interface IProps {
   ships: IShip[];
   setShips: React.Dispatch<React.SetStateAction<IShip[]>>;
+  setIsGame: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ShipsContainer = ({ships, setShips}: IProps) => {
+const ShipsContainer = ({ships, setShips, setIsGame}: IProps) => {
   const { selectedShip } = ShipStore();
 
   const shipToRender = ships.some(ship => ship.isPlaced === false)
@@ -25,10 +26,14 @@ const ShipsContainer = ({ships, setShips}: IProps) => {
           setShips={setShips}
         />
       ) : (
-        <Button>Play</Button>
+        <Button
+          onClick={() => setIsGame(true)}
+        >
+          Play
+        </Button>
       )}
     </div> 
   )
 }
 
-export default ShipsContainer
+export default ShipsContainer;

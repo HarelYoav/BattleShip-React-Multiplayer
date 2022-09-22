@@ -41,8 +41,6 @@ const Ship = ({ship, selected, ships, setShips}: IProps) => {
   }, [rotate, selectShip, selected])
 
   
-  console.log('Ship')
-
   if (ship.isPlaced) return null;
 
   return (

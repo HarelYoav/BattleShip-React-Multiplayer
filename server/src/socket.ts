@@ -77,13 +77,22 @@ export class ServerSocket {
       const oponentUid = this.GetUidFromSocketId(socketId);
       if(oponentUid) {
         this.users[oponentUid].inGame = true;
-        this.io.to(socketId).emit('confim_play', this.users[oponentUid]);
+        this.io.to(socketId).emit('confim_play', this.users[uid]);
       }
       
       const users = Object.values(this.users);
       socket.broadcast.emit('in_game', users);
 
       callback(users);
+
+    });
+
+    socket.on('shoot', (oponentSocketId: string, coordinates: {row: number, col: number}) => {
+      const oponentUid = this.GetUidFromSocketId(oponentSocketId);
+      console.log(oponentSocketId)
+      if(oponentUid) {
+        this.io.to(oponentSocketId).emit('shoot', coordinates);
+      }
 
     });
 
