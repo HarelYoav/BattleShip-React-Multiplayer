@@ -2,10 +2,11 @@ import { useContext, useState, useEffect } from 'react'
 import SocketContext from '../contexts/Socket/SocketContext';
 import Board from '../components/Board';
 import { IShip, ICell, IOpponentCell } from '../types';
-import { ShipStore, BoardStore } from '../store/authStore';
+import { ShipStore } from '../store/authStore';
 import ShipsContainer from '../components/ShipsContainer';
 import OpponentBoard from '../components/OpponentBoard';
 import { shipsData } from '../utils/shipsData';
+
 
 
 const Game = () => {
@@ -13,8 +14,7 @@ const Game = () => {
   const boardSize = 10;
   const { socket, play_against} = useContext(SocketContext).SocketState;
   const { selectedShip, setSelectedShip } = ShipStore();
-  const {board, setBoard} = BoardStore();
-  // const [board, setBoard] = useState<ICell[][]>(new Array(boardSize));
+  const [board, setBoard] = useState<ICell[][]>(new Array(boardSize));
   const [ships, setShips] = useState<IShip[]>(shipsData);
   const [isGame, setIsGame] = useState(false);
 
@@ -51,25 +51,25 @@ const Game = () => {
 
   const removeShipFromBoard = (shipId: number) => {
     const updatedShips = [...ships];
-    const updateBoard = [...board];
+    const updatedBoard = [...board];
     //place the ship on the board
     const ship = updatedShips[shipId];
     if(ship.rotate) {
       for(let i = ship.coordinates.row; i < (ship.spaces + ship.coordinates.row); i++) {
-        updateBoard[i][ship.coordinates.col].isShip = false;
-        updateBoard[i][ship.coordinates.col].shipId = -1;
+        updatedBoard[i][ship.coordinates.col].isShip = false;
+        updatedBoard[i][ship.coordinates.col].shipId = -1;
       }
     } else {
       for(let i = ship.coordinates.col; i < (ship.spaces + ship.coordinates.col); i++) {
-        updateBoard[ship.coordinates.row][i].isShip = false;
-        updateBoard[ship.coordinates.row][i].shipId = -1;
+        updatedBoard[ship.coordinates.row][i].isShip = false;
+        updatedBoard[ship.coordinates.row][i].shipId = -1;
       }
     }
     
     updatedShips[shipId].isPlaced = false;
     setShips(updatedShips);
-    setBoard(updateBoard);
-    console.log(shipId)
+    setBoard(updatedBoard);
+    console.log(board)
   }
 
   //This function place ship on the board
@@ -121,12 +121,25 @@ const Game = () => {
     setSelectedShip(null);
   }
 
+  //this event get trigger when the opponent shoots
+  socket?.on('shoot', (coordinates: {row: number, col: number}) => {
+    updateBoard(coordinates)
+   
+  });
+
+  const updateBoard = (coordinates: {row: number, col: number}) => {
+    setBoard((board) => {
+      const updatedBoard = [...board];
+      updatedBoard[coordinates.row][coordinates.col].shootOn = true;
+      return updatedBoard;
+    });
+  }
 
   useEffect(() => {
     createBoard();
   }, [])
 
-  console.log(board)
+  console.log(board);
 
   return (
     <div
@@ -136,7 +149,7 @@ const Game = () => {
         <h1>{`${socket?.id} aginst: ${play_against?.socketId}`}</h1>
       </div>
       <div className='grid grid-cols-1 xl:grid-cols-2'>
-        <Board board={board} cellClicked={cellClicked}/>
+        <Board board={board} cellClicked={cellClicked} socket={socket}/>
         {!isGame ? 
           <ShipsContainer ships={ships} setShips={setShips} setIsGame={setIsGame}/>
           :

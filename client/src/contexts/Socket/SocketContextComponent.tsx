@@ -1,9 +1,8 @@
-import { PropsWithChildren, useEffect, useReducer, useState } from 'react';
+import { PropsWithChildren, useEffect, useReducer, useState, useContext } from 'react';
 import { useSocket } from '../../hooks/useSocket';
 import { defaultSocketContextState, SocketContextProvider, SocketReducer } from './SocketContext';
 import { IUser } from '../../types';
 import { useNavigate } from "react-router-dom";
-import { BoardStore } from '../../store/authStore';
 
 
 interface IProps extends PropsWithChildren{
@@ -14,7 +13,6 @@ const SocketContext = (props : IProps) => {
   
   const { children } = props;
   const navigate = useNavigate();
-  const {getBoard, setBoard} = BoardStore();
   const [SocketState, SocketDispatch] = useReducer(SocketReducer, defaultSocketContextState);
   const [loading, setLoading] = useState(true);
   const socket = useSocket('ws://localhost:5000', {
@@ -73,13 +71,7 @@ const SocketContext = (props : IProps) => {
       SocketDispatch({ type: 'update_play_against', payload: user});
       navigate('/game');
     });
-    //this event get trigger when the oponent shoots
-    socket.on('shoot', (coordinates: {row: number, col: number}) => {
-      
-      const board = getBoard();
-      console.log(board)
-    });
-
+   
   };
 
   const SendHandShake = (id: string) => {

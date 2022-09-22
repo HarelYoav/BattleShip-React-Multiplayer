@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 import { Socket } from 'socket.io-client';
-import { IUser } from '../../types';
+import { ICell, IUser } from '../../types';
 
 export interface ISocketContextState {
     socket: Socket | undefined;
@@ -8,6 +8,7 @@ export interface ISocketContextState {
     users: IUser[];
     play_invitations: string[];
     play_against: IUser | null;
+    board: ICell[][];
 }
 
 export const defaultSocketContextState: ISocketContextState = {
@@ -15,13 +16,14 @@ export const defaultSocketContextState: ISocketContextState = {
     uid: '',
     users: [],
     play_invitations: [],
-    play_against: null
+    play_against: null,
+    board: new Array(10)
 };
 
 export type TSocketContextActions = 'update_socket' | 'update_uid' | 'update_users' | 'add_invited' 
-                                        | 'remove_invited' | 'remove_user'| 'update_play_against';
+                                        | 'remove_invited' | 'remove_user'| 'update_play_against' | 'update_board';
 
-export type TSocketContextPayload = string | IUser[] | Socket| string[]| IUser| null;
+export type TSocketContextPayload = string | IUser[] | Socket| string[]| IUser| null | ICell[][];
 
 export interface ISocketContextActions {
     type: TSocketContextActions;
@@ -40,6 +42,8 @@ export const SocketReducer = (state: ISocketContextState, action: ISocketContext
             return { ...state, users: action.payload as IUser[] };
         case 'remove_user':
             return { ...state, users: state.users.filter((user) => user.socketId !== (action.payload as string)) };
+        case 'update_board':
+            return { ...state, board: action.payload as ICell[][] };
         case 'add_invited':
             return { ...state, play_invitations: [...state.play_invitations, action.payload as string] };
         case 'remove_invited':

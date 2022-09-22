@@ -89,7 +89,6 @@ export class ServerSocket {
 
     socket.on('shoot', (oponentSocketId: string, coordinates: {row: number, col: number}) => {
       const oponentUid = this.GetUidFromSocketId(oponentSocketId);
-      console.log(oponentSocketId)
       if(oponentUid) {
         this.io.to(oponentSocketId).emit('shoot', coordinates);
       }

@@ -19,15 +19,15 @@ import { IShip, ICell } from '../types';
 
 type BoardStoreState = {
   board: ICell[][];
-  setBoard: (board: ICell[][]) => void;
+  setBoard: (updatedBoard: ICell[][]) => void;
   getBoard: () => ICell[][];
 }
 
 
 const BoardStore = create<BoardStoreState>()(set => ({
   board: new Array(10),
-  setBoard(board: ICell[][]) {
-    set({ board: board });
+  setBoard(updatedBoard: ICell[][]) {
+    set({ board: updatedBoard });
   },
   getBoard() {
     return this.board;

@@ -19,9 +19,15 @@ const Cell = ({ cell, cellClicked }: IProps) => {
 
   if(istanceOfICell(cell)) {
     const tmpCell = cell as ICell;
-    if(tmpCell.isShip) {
-      style = 'xl:w-12 xl:h-12 w-8 h-8 border rounded-sm flex items-center justify-center shadow-lg bg-gray-300';
+    if(tmpCell.isShip && tmpCell.shootOn) {
+      style = 'xl:w-12 xl:h-12 w-8 h-8 border rounded-sm flex items-center justify-center shadow-lg bg-red-300';
     }
+    else if(tmpCell.isShip) {
+      style = 'xl:w-12 xl:h-12 w-8 h-8 border rounded-sm flex items-center justify-center shadow-lg bg-gray-300';
+    } else if(tmpCell.shootOn) {
+      style = 'xl:w-12 xl:h-12 w-8 h-8 border rounded-sm flex items-center justify-center shadow-lg bg-yellow-300'
+    }
+
   } else {
     const tmpCell = cell as IOpponentCell;
     if(tmpCell.state ==='missed') {

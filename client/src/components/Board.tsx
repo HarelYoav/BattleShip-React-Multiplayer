@@ -1,15 +1,16 @@
 import {memo, useEffect, useState} from 'react'
 import Cell from './Cell';
 import { ICell, IOpponentCell} from '../types';
+import {Socket} from 'socket.io-client'
 
 interface IProps {
   board: ICell[][];
   cellClicked: (cell: ICell | IOpponentCell) => void;
+  socket: Socket | undefined;
 }
 
-const Board = memo(({board, cellClicked}: IProps) => {
+const Board = memo(({board, cellClicked, socket}: IProps) => {
 
-  console.log(board)
   return (
     <div className='border'>
       {board?.map((row, xidx) => {
