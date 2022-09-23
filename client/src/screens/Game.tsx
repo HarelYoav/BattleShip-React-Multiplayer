@@ -2,10 +2,11 @@ import { useContext, useState, useEffect } from 'react'
 import SocketContext from '../contexts/Socket/SocketContext';
 import Board from '../components/Board';
 import { IShip, ICell, IOpponentCell } from '../types';
-import { ShipStore } from '../store/authStore';
+import { ShipStore, BoardStore } from '../store/authStore';
 import ShipsContainer from '../components/ShipsContainer';
 import OpponentBoard from '../components/OpponentBoard';
 import { shipsData } from '../utils/shipsData';
+import { callbackify } from 'util';
 
 
 
@@ -14,7 +15,10 @@ const Game = () => {
   const boardSize = 10;
   const { socket, play_against} = useContext(SocketContext).SocketState;
   const { selectedShip, setSelectedShip } = ShipStore();
-  const [board, setBoard] = useState<ICell[][]>(new Array(boardSize));
+  const {board, setBoard} = BoardStore();
+  const [boardReady, setBoardReady] = useState(false);
+
+  // const [board, setBoard] = useState<ICell[][]>(new Array(boardSize));
   const [ships, setShips] = useState<IShip[]>(shipsData);
   const [isGame, setIsGame] = useState(false);
 
@@ -39,6 +43,8 @@ const Game = () => {
     }
 
     setBoard(newBoard);
+    setBoardReady(true);
+
   }
 
   //This function is called when click on board cell
@@ -69,7 +75,6 @@ const Game = () => {
     updatedShips[shipId].isPlaced = false;
     setShips(updatedShips);
     setBoard(updatedBoard);
-    console.log(board)
   }
 
   //This function place ship on the board
@@ -121,23 +126,29 @@ const Game = () => {
     setSelectedShip(null);
   }
 
-  //this event get trigger when the opponent shoots
-  socket?.on('shoot', (coordinates: {row: number, col: number}) => {
-    updateBoard(coordinates)
-   
-  });
+
 
   const updateBoard = (coordinates: {row: number, col: number}) => {
-    setBoard((board) => {
-      const updatedBoard = [...board];
-      updatedBoard[coordinates.row][coordinates.col].shootOn = true;
-      return updatedBoard;
-    });
+    const isHit = board[coordinates.row][coordinates.col].isShip;
+    socket?.emit('opponent_shoot_feedback', play_against?.socketId,isHit);
+    const updatedBoard = [...board];
+    updatedBoard[coordinates.row][coordinates.col].shootOn = true;
+    setBoard(updatedBoard);
   }
 
   useEffect(() => {
     createBoard();
-  }, [])
+    //this event get trigger when the opponent shoots
+    
+  }, []);
+
+  useEffect(() => {
+    if(boardReady) {
+      socket?.on('opponent_shoot', (coordinates: {row: number, col: number}) => {
+        updateBoard(coordinates);
+      });
+    }
+  }, [boardReady])
 
   console.log(board);
 

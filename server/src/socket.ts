@@ -87,12 +87,18 @@ export class ServerSocket {
 
     });
 
-    socket.on('shoot', (oponentSocketId: string, coordinates: {row: number, col: number}) => {
+    socket.on('player_shoot', (oponentSocketId: string, coordinates: {row: number, col: number}) => {
       const oponentUid = this.GetUidFromSocketId(oponentSocketId);
       if(oponentUid) {
-        this.io.to(oponentSocketId).emit('shoot', coordinates);
+        this.io.to(oponentSocketId).emit('opponent_shoot', coordinates);
       }
+    });
 
+    socket.on('opponent_shoot_feedback', (oponentSocketId: string, isHit: boolean) => {
+      const oponentUid = this.GetUidFromSocketId(oponentSocketId);
+      if(oponentUid) {
+        this.io.to(oponentSocketId).emit('player_shoot_feedback', isHit);
+      }
     });
 
     

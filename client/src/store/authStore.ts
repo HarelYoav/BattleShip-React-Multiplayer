@@ -3,19 +3,7 @@ import { persist } from 'zustand/middleware';
 import { IShip, ICell } from '../types';
 
 
-// type BoardStoreState = {
-//   board: ICell[][];
-//   setBoard: (board: ICell[][]) => void;
-// }
-
-
-// const BoardStore = create<BoardStoreState>()(persist( set => ({
-//   board: new Array(10),
-//   setBoard(board: ICell[][]) {
-//     set({ board: board });
-//   },
- 
-// })));
+// 
 
 type BoardStoreState = {
   board: ICell[][];
@@ -49,6 +37,18 @@ const ShipStore = create<SelectedShipStore>()(set => ({
 }));
 
 
-  
-
 export {ShipStore, BoardStore};
+
+// type BoardStoreState = {
+//   board: ICell[][];
+//   setBoard: (board: ICell[][]) => void;
+// }
+
+
+// const BoardStore = create<BoardStoreState>()(persist( set => ({
+//   board: new Array(10),
+//   setBoard(board: ICell[][]) {
+//     set({ board: board });
+//   },
+ 
+// })));
