@@ -1,29 +1,29 @@
-import { useContext, useState, useEffect } from 'react'
+import { useContext, useState, useEffect, useCallback } from 'react'
 import SocketContext from '../contexts/Socket/SocketContext';
 import Board from '../components/Board';
 import { IShip, ICell, IOpponentCell } from '../types';
-import { ShipStore, BoardStore } from '../store/authStore';
+import { ShipStore } from '../store/authStore';
 import ShipsContainer from '../components/ShipsContainer';
 import OpponentBoard from '../components/OpponentBoard';
 import { shipsData } from '../utils/shipsData';
-import { callbackify } from 'util';
+import { useGameStore } from '../store/authStore';
 
 
 
 const Game = () => {
 
   const boardSize = 10;
-  const { socket, play_against} = useContext(SocketContext).SocketState;
+  const { uid, socket } = useContext(SocketContext).SocketState;
+  const { opponent, setReady, yourTurn, setTurn } = useGameStore();
   const { selectedShip, setSelectedShip } = ShipStore();
-  const {board, setBoard} = BoardStore();
-  const [boardReady, setBoardReady] = useState(false);
-
-  // const [board, setBoard] = useState<ICell[][]>(new Array(boardSize));
+  const [board, setBoard] = useState<ICell[][]>();
   const [ships, setShips] = useState<IShip[]>(shipsData);
   const [isGame, setIsGame] = useState(false);
+  const [shipsDestroyed, setShipsDestroyed] = useState(0);
 
-  const createBoard = () => {
-    const newBoard = [...board];
+  const createBoard = useCallback(() => {
+    console.log('create')
+    const newBoard = new Array(10);
 
     for(let row = 0; row < boardSize; row++) {
       newBoard[row] = new Array(boardSize)
@@ -41,11 +41,9 @@ const Game = () => {
         newBoard[row][col] = cell;
       }
     }
-
     setBoard(newBoard);
-    setBoardReady(true);
-
-  }
+    
+  }, [setBoard]);
 
   //This function is called when click on board cell
   const cellClicked = (cell: ICell | IOpponentCell) => {
@@ -56,9 +54,12 @@ const Game = () => {
   }
 
   const removeShipFromBoard = (shipId: number) => {
+
+    if(!board || !ships) return;
+
     const updatedShips = [...ships];
     const updatedBoard = [...board];
-    //place the ship on the board
+   
     const ship = updatedShips[shipId];
     if(ship.rotate) {
       for(let i = ship.coordinates.row; i < (ship.spaces + ship.coordinates.row); i++) {
@@ -80,7 +81,7 @@ const Game = () => {
   //This function place ship on the board
   const placeShip = (coordinates: {row: number, col: number}) => {
     //exit the function if no selected ship to place
-    if(!selectedShip) return;
+    if(!board || !selectedShip) return;
     //board to update
     const updatedBoard = [...board];
     if(selectedShip.rotate) { //Place ship vertically
@@ -128,44 +129,99 @@ const Game = () => {
 
 
 
-  const updateBoard = (coordinates: {row: number, col: number}) => {
+  const updateBoard = useCallback((coordinates: {row: number, col: number}) => {
+    if(!board || board[coordinates.row][coordinates.col].shootOn) return;
+    setBoard((board) => {
+      if (board) {
+        const updatedBoard = [...board];
+        updatedBoard[coordinates.row][coordinates.col].shootOn = true;
+        return updatedBoard;
+      }
+    });
     const isHit = board[coordinates.row][coordinates.col].isShip;
-    socket?.emit('opponent_shoot_feedback', play_against?.socketId,isHit);
-    const updatedBoard = [...board];
-    updatedBoard[coordinates.row][coordinates.col].shootOn = true;
-    setBoard(updatedBoard);
+    socket?.emit('opponent_shoot_feedback', coordinates, isHit);
+    setTurn(true);
+    if(isHit) {
+      const updatedShips = [...ships];
+      updatedShips[board[coordinates.row][coordinates.col].shipId].hits++;
+      setShips(updatedShips);
+      const hitShip = updatedShips[board[coordinates.row][coordinates.col].shipId];
+      
+      if(hitShip.hits === hitShip.spaces) {
+        setShipsDestroyed(prev => prev + 1);
+      }
+    }
+
+  },[board, setTurn, ships, socket]);
+
+  const startGame = () => {
+    setIsGame(true);
+    socket?.emit('player_ready');
   }
+
+  
+  useEffect(() => {
+    if(shipsDestroyed === 5) {
+      console.log('you lose')
+    }
+  }, [shipsDestroyed])
 
   useEffect(() => {
     createBoard();
-    //this event get trigger when the opponent shoots
-    
-  }, []);
+  }, [createBoard]);
 
   useEffect(() => {
-    if(boardReady) {
-      socket?.on('opponent_shoot', (coordinates: {row: number, col: number}) => {
-        updateBoard(coordinates);
-      });
-    }
-  }, [boardReady])
+    socket?.on('opponent_shoot', (coordinates: {row: number, col: number}) => {
+      updateBoard(coordinates);      
+    });
 
-  console.log(board);
+    return () => {
+      socket?.off('opponent_shoot')
+    }
+      
+  }, [socket, updateBoard]);
+
+  useEffect(() => {
+   
+    socket?.on('opponent_ready', () => {
+      setReady();
+    });
+    socket?.on('start_game', () => {
+      setTurn(true);
+      console.log('game')
+    });
+    return () => {
+      socket?.off('opponent_ready');
+      socket?.off('start_game');
+    }
+  }, [setReady, setTurn, socket])
 
   return (
     <div
       className='xl:w-[1200px] w-[350px] m-auto overflow-hidden h-[100vh]'
     > 
       <div className='p-5 text-center'>
-        <h1>{`${socket?.id} aginst: ${play_against?.socketId}`}</h1>
+        <h1>{`${uid} aginst: ${opponent?.uid}`}</h1>
+      </div>
+      <div>
+        <h1>{isGame && opponent?.ready && (yourTurn ? 'Your turn' : 'Opponent turn')}</h1>
       </div>
       <div className='grid grid-cols-1 xl:grid-cols-2'>
-        <Board board={board} cellClicked={cellClicked} socket={socket}/>
-        {!isGame ? 
-          <ShipsContainer ships={ships} setShips={setShips} setIsGame={setIsGame}/>
-          :
-          <OpponentBoard boardSize={boardSize}/>
+        {board && <Board board={board} cellClicked={cellClicked}/>}
+        {isGame ? 
+          (  
+            opponent?.ready ? 
+              (
+                <OpponentBoard boardSize={boardSize}/>
+              ) : (
+                'Waiting for opponent to be ready'
+              )
+          ) : (
+            <ShipsContainer ships={ships} setShips={setShips} startGame={startGame}/>
+          )
+          
         }
+        
         
       </div>
     </div>

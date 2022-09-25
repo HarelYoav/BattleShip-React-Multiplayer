@@ -1,5 +1,5 @@
 export interface IUser {
-  _id: string,
+  id: string,
   socketId: string;
   inGame: boolean;
 }
@@ -14,7 +14,8 @@ export interface IShip {
   coordinates: {
     row: number;
     col: number;
-  }
+  },
+  hits: number;
 }
 
 export interface ICell {

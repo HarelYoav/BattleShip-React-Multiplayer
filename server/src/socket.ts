@@ -5,6 +5,8 @@ interface IUser {
   id: string;
   socketId: string;
   inGame: boolean;
+  playAgainst: string | null;
+  userReady: boolean;
 }
 
 export class ServerSocket {
@@ -54,7 +56,7 @@ export class ServerSocket {
       }
 
       // Create new user
-      this.users[id] = {id: id, socketId: socket.id, inGame: false};
+      this.users[id] = {id: id, socketId: socket.id, inGame: false, playAgainst: null, userReady: false};
       const users = Object.values(this.users);
 
       console.info('Sending callback for handshake');
@@ -73,12 +75,15 @@ export class ServerSocket {
     });
 
     socket.on('confirm_play', (uid: string, socketId: string, callback:(users: IUser[]) => void) => {
+      
+      const opponentUid = this.GetUidFromSocketId(socketId);
+      if(!opponentUid) return;
+
       this.users[uid].inGame = true;
-      const oponentUid = this.GetUidFromSocketId(socketId);
-      if(oponentUid) {
-        this.users[oponentUid].inGame = true;
-        this.io.to(socketId).emit('confim_play', this.users[uid]);
-      }
+      this.users[uid].playAgainst = opponentUid;
+      this.users[opponentUid].inGame = true;
+      this.users[opponentUid].playAgainst = uid;
+      this.io.to(socketId).emit('confirm_play', uid);
       
       const users = Object.values(this.users);
       socket.broadcast.emit('in_game', users);
@@ -87,29 +92,50 @@ export class ServerSocket {
 
     });
 
-    socket.on('player_shoot', (oponentSocketId: string, coordinates: {row: number, col: number}) => {
-      const oponentUid = this.GetUidFromSocketId(oponentSocketId);
-      if(oponentUid) {
-        this.io.to(oponentSocketId).emit('opponent_shoot', coordinates);
+    socket.on('player_ready', () => {
+      const uid = this.GetUidFromSocketId(socket.id);
+      if(!uid) return;
+      this.users[uid].userReady = true;
+      const opponentUid = this.users[uid].playAgainst;
+      if(!opponentUid) return;
+      this.io.to(this.users[opponentUid].socketId).emit('opponent_ready');
+
+      if(this.users[uid].userReady && this.users[opponentUid].userReady) {
+        this.io.to(this.users[opponentUid].socketId).emit('start_game');
       }
     });
 
-    socket.on('opponent_shoot_feedback', (oponentSocketId: string, isHit: boolean) => {
-      const oponentUid = this.GetUidFromSocketId(oponentSocketId);
-      if(oponentUid) {
-        this.io.to(oponentSocketId).emit('player_shoot_feedback', isHit);
-      }
+    socket.on('player_shoot', (coordinates: {row: number, col: number}) => {
+      const uid = this.GetUidFromSocketId(socket.id);
+      if(!uid) return;
+
+      const opponentUid = this.users[uid].playAgainst
+      if(!opponentUid) return;
+
+      this.io.to(this.users[opponentUid].socketId).emit('opponent_shoot', coordinates);
+      
+    });
+
+    socket.on('opponent_shoot_feedback', (coordinates: {row: number, col: number}, isHit: boolean) => {
+      const uid = this.GetUidFromSocketId(socket.id);
+      if(!uid) return;
+
+      const opponentUid = this.users[uid].playAgainst
+      if(!opponentUid) return;
+
+      this.io.to(this.users[opponentUid].socketId).emit('player_shoot_feedback', coordinates, isHit);
+      
     });
 
     
     socket.on('disconnect', () => {
       console.info(`disconnected ${socket.id}`);
       const uid = this.GetUidFromSocketId(socket.id);
-      if(uid) {
-        delete this.users[uid];
-        const users = Object.values(this.users);
-        socket.broadcast.emit('user_disconnected', users)
-      }
+      if(!uid) return;
+
+      delete this.users[uid];
+      const users = Object.values(this.users);
+      socket.broadcast.emit('user_disconnected', users)
     })
   };
 

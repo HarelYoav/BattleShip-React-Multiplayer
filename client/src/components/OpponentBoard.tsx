@@ -1,7 +1,8 @@
-import {useEffect, useState, useContext} from 'react'
+import {useEffect, useState, useContext, useCallback} from 'react'
 import SocketContext from '../contexts/Socket/SocketContext';
 import Cell from './Cell';
 import { IOpponentCell } from '../types';
+import {useGameStore} from '../store/authStore';
 
 interface IProps {
   boardSize: number;
@@ -9,12 +10,12 @@ interface IProps {
 
 const OpponentBoard = ({boardSize}: IProps) => {
   
-  const { socket, play_against} = useContext(SocketContext).SocketState;
-  const [board, setBoard] = useState<IOpponentCell[][]>(new Array(boardSize));
-  const [shootCoordinates, setShootCoordinates] = useState<{row: number, col: number}>();
+  const { socket } = useContext(SocketContext).SocketState;
+  const {yourTurn, setTurn} = useGameStore();
+  const [board, setBoard] = useState<IOpponentCell[][]>();
 
-  const createBoard = () => {
-    const newBoard= [...board];
+  const createBoard = useCallback(() => {
+    const newBoard = new Array(boardSize);
 
     for(let row = 0; row < boardSize; row++) {
       newBoard[row] = new Array(boardSize)
@@ -31,44 +32,43 @@ const OpponentBoard = ({boardSize}: IProps) => {
     }
 
     setBoard(newBoard);
-  }
+  }, [boardSize]);
 
   const cellClicked = (cell: IOpponentCell) => {
-    
-    // console.log(cell.coordinates);
-    setShootCoordinates(cell.coordinates);
-    
-  }
+    if(!yourTurn) return;
+    setTurn(false);
+    socket?.emit('player_shoot',  cell.coordinates);
 
-  const updateBoard = async (isHit: boolean) => {
-    
-    if(shootCoordinates) {
-      console.log(shootCoordinates)
-      const updatedBoard = [...board];
-      if(isHit) {
-        updatedBoard[shootCoordinates.row][shootCoordinates.col].state = 'hit';
-      } else {
-        updatedBoard[shootCoordinates.row][shootCoordinates.col].state = 'missed';
+  };
+
+  const updateBoard = (coordinates: {row: number, col: number}, isHit: boolean) => {
+    console.log('oppoBoard')
+    setBoard((board) => {
+      if (board) {
+        const updatedBoard = [...board];
+        if(isHit) {
+          updatedBoard[coordinates.row][coordinates.col].state = 'hit';
+        } else {
+          updatedBoard[coordinates.row][coordinates.col].state = 'missed';
+        }
+        return updatedBoard;
       }
-      setBoard(updatedBoard);
-    }
-    // console.log('hi')
-  }
+    });
+    
+  };
 
   useEffect(() => {
-    if(shootCoordinates) {
-      socket?.emit('player_shoot', play_against?.socketId, shootCoordinates);
+    if(!board) {
+      createBoard();
     }
-    console.log(shootCoordinates)
-
-  },[shootCoordinates]);
-
-  useEffect(() => {
-    createBoard();
     socket?.on('player_shoot_feedback', (cooridnates: { row:number, col:number}, isHit: boolean) => {
       updateBoard(cooridnates, isHit);
     });
-  }, []);
+
+    return () => {
+      socket?.off('player_shoot_feedback');
+    }
+  }, [board, createBoard, socket]);
 
 
 

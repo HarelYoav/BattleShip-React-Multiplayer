@@ -1,18 +1,17 @@
-import {useState} from 'react'
 import Ship from './Ship';
 import { IShip } from '../types';
-import {ShipStore} from '../store/authStore';
-import {Button} from '@mui/material'
+import { ShipStore } from '../store/authStore';
+import { Button } from '@mui/material'
 
 interface IProps {
   ships: IShip[];
   setShips: React.Dispatch<React.SetStateAction<IShip[]>>;
-  setIsGame: React.Dispatch<React.SetStateAction<boolean>>;
+  startGame: () => void;
 }
 
-const ShipsContainer = ({ships, setShips, setIsGame}: IProps) => {
+const ShipsContainer = ({ships, setShips, startGame}: IProps) => {
+  
   const { selectedShip } = ShipStore();
-
   const shipToRender = ships.some(ship => ship.isPlaced === false)
 
   return (
@@ -27,7 +26,7 @@ const ShipsContainer = ({ships, setShips, setIsGame}: IProps) => {
         />
       ) : (
         <Button
-          onClick={() => setIsGame(true)}
+          onClick={startGame}
         >
           Play
         </Button>

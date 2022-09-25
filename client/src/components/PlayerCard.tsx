@@ -10,6 +10,7 @@ import Avatar from '@mui/material/Avatar';
 import VideogameAssetSharpIcon from '@mui/icons-material/VideogameAssetSharp';
 import { IUser } from '../types';
 import { Socket } from 'socket.io-client';
+import {useGameStore} from '../store/authStore';
 
 
 interface IPorps {
@@ -22,27 +23,28 @@ const PlayerCard = ({ user, uid, socket }: IPorps) => {
 
   const { play_invitations } = useContext(SocketContext).SocketState;
   const { SocketDispatch } = useContext(SocketContext);
-  const [isInvited, setIsinvited] = useState(false);
+  const { setOpponent } = useGameStore();
+  const [isInvited, setIsInvited] = useState(false);
   const [iInvited, setIInvited] = useState(false);
   const navigate = useNavigate();
 
   //current user invite other player to play
   const inviteToPlay = () => {
     socket?.emit('invite_play', user.socketId);
-    setIsinvited(true);
+    setIsInvited(true);
   };
   //current user cancel invitation of other player
   const cancelInviation = () => {
     socket?.emit('cancel_invite_play', user.socketId);
-    setIsinvited(false)
+    setIsInvited(false)
   };
 
   //current user confirm invitation
   const confirmInvitation = () => {
     socket?.emit('confirm_play', uid, user.socketId, (users: IUser[]) => {
       SocketDispatch({ type: 'update_users', payload: users});
-      user.inGame= true;
-      SocketDispatch({type: 'update_play_against', payload: user});
+      user.inGame = true;
+      setOpponent(user.id);
       navigate('/game');
     });
   }

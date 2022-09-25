@@ -1,13 +1,9 @@
-import React, {useState} from 'react'
 import { ICell, IOpponentCell } from '../types';
-
 
 interface IProps {
   cell: ICell | IOpponentCell;
   cellClicked: (cell: ICell | IOpponentCell) => void;
 }
-
-
 
 const Cell = ({ cell, cellClicked }: IProps) => {
 
@@ -37,7 +33,6 @@ const Cell = ({ cell, cellClicked }: IProps) => {
     }
   }
   
-
   return (
     <div
       className={style}
@@ -48,4 +43,4 @@ const Cell = ({ cell, cellClicked }: IProps) => {
   )
 }
 
-export default Cell
+export default Cell;

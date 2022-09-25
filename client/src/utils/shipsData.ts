@@ -9,7 +9,8 @@ export const shipsData = [
       coordinates: {
         row: -1,
         col: -1
-      }
+      },
+      hits: 0
     },
     {
       id: 1,
@@ -21,7 +22,8 @@ export const shipsData = [
       coordinates: {
         row: -1,
         col: -1
-      }
+      },
+      hits: 0
     },
     {
       id: 2,
@@ -33,7 +35,8 @@ export const shipsData = [
       coordinates: {
         row: -1,
         col: -1
-      }
+      },
+      hits: 0
     },
     {
       id: 3,
@@ -45,7 +48,8 @@ export const shipsData = [
       coordinates: {
         row: -1,
         col: -1
-      }
+      },
+      hits: 0
     },
     {
       id: 4,
@@ -57,6 +61,7 @@ export const shipsData = [
       coordinates: {
         row: -1,
         col: -1
-      }
+      },
+      hits: 0
     }
 ]
