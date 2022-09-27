@@ -127,6 +127,16 @@ export class ServerSocket {
       
     });
 
+    socket.on('game_over', () => {
+      const uid = this.GetUidFromSocketId(socket.id);
+      if(!uid) return;
+
+      const opponentUid = this.users[uid].playAgainst
+      if(!opponentUid) return;
+
+      this.io.to(this.users[opponentUid].socketId).emit('you_won');
+    });
+
     
     socket.on('disconnect', () => {
       console.info(`disconnected ${socket.id}`);

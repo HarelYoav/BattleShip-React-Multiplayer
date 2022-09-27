@@ -9,8 +9,8 @@ import {ShipStore} from '../store/authStore';
 interface IProps {
   ship: IShip
   selected: boolean;
-  setShips: React.Dispatch<React.SetStateAction<IShip[]>>;
-  ships: IShip[];
+  setShips: React.Dispatch<React.SetStateAction<IShip[] | undefined>>;
+  ships: IShip[] | undefined;
 }
 
 const Ship = ({ship, selected, ships, setShips}: IProps) => {
@@ -22,6 +22,7 @@ const Ship = ({ship, selected, ships, setShips}: IProps) => {
   const iconStyle = rotate ? 'w-10 h-10 rotate-90' : 'w-10 h-10';
 
   const rotateShip = () => {
+    if(!ships) return;
     setRotate(current => !current)
     const updatedShips = [...ships]
     updatedShips[ship.id].rotate = rotate;

@@ -17,14 +17,12 @@ const Game = () => {
   const { opponent, setReady, yourTurn, setTurn } = useGameStore();
   const { selectedShip, setSelectedShip } = ShipStore();
   const [board, setBoard] = useState<ICell[][]>();
-  const [ships, setShips] = useState<IShip[]>(shipsData);
-  const [isGame, setIsGame] = useState(false);
-  const [shipsDestroyed, setShipsDestroyed] = useState(0);
+  const [ships, setShips] = useState<IShip[]>();
+  const [isGame, setIsGame] = useState<boolean>();
+  const [shipsDestroyed, setShipsDestroyed] = useState<number>(0);
 
   const createBoard = useCallback(() => {
-    console.log('create')
-    const newBoard = new Array(10);
-
+    const newBoard = new Array(boardSize);
     for(let row = 0; row < boardSize; row++) {
       newBoard[row] = new Array(boardSize)
       for(let col = 0; col < boardSize; col++) {
@@ -43,7 +41,16 @@ const Game = () => {
     }
     setBoard(newBoard);
     
-  }, [setBoard]);
+    const newShips = new Array(shipsData.length);
+    for( let i = 0; i < newShips.length; i++) {
+      newShips[i] = shipsData[i];
+      newShips[i].isPlaced = false;
+      newShips[i].rotate = false;
+    };
+    setShips(newShips);
+
+  }, []);
+
 
   //This function is called when click on board cell
   const cellClicked = (cell: ICell | IOpponentCell) => {
@@ -114,7 +121,7 @@ const Game = () => {
     setBoard(updatedBoard);
     selectedShip.isPlaced = true;
     selectedShip.coordinates = coordinates;
-    const updatedShips = ships.map(ship => {
+    const updatedShips = ships?.map(ship => {
       if (ship.id !== selectedShip.id) return ship
       else {
         ship.isPlaced = true;
@@ -141,7 +148,7 @@ const Game = () => {
     const isHit = board[coordinates.row][coordinates.col].isShip;
     socket?.emit('opponent_shoot_feedback', coordinates, isHit);
     setTurn(true);
-    if(isHit) {
+    if(isHit && ships) {
       const updatedShips = [...ships];
       updatedShips[board[coordinates.row][coordinates.col].shipId].hits++;
       setShips(updatedShips);
@@ -162,13 +169,16 @@ const Game = () => {
   
   useEffect(() => {
     if(shipsDestroyed === 5) {
-      console.log('you lose')
+      console.log('you lose');
+      socket?.emit('game_over')
     }
-  }, [shipsDestroyed])
+  }, [shipsDestroyed, socket])
 
   useEffect(() => {
-    createBoard();
-  }, [createBoard]);
+    if(!board) {
+      createBoard();
+    }
+  }, [board, createBoard]);
 
   useEffect(() => {
     socket?.on('opponent_shoot', (coordinates: {row: number, col: number}) => {
@@ -188,7 +198,9 @@ const Game = () => {
     });
     socket?.on('start_game', () => {
       setTurn(true);
-      console.log('game')
+    });
+    socket?.on('you_won', () => {
+      console.log('you won');
     });
     return () => {
       socket?.off('opponent_ready');

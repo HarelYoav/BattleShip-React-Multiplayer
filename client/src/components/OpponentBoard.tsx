@@ -35,7 +35,7 @@ const OpponentBoard = ({boardSize}: IProps) => {
   }, [boardSize]);
 
   const cellClicked = (cell: IOpponentCell) => {
-    if(!yourTurn) return;
+    if(!yourTurn || cell.state !== 'free') return;
     setTurn(false);
     socket?.emit('player_shoot',  cell.coordinates);
 

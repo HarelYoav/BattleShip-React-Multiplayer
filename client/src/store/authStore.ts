@@ -2,6 +2,7 @@ import create from 'zustand';
 import { persist } from 'zustand/middleware';
 import { IShip, ICell } from '../types';
 
+
 interface IOpponent {
   uid: string;
   ready: boolean;
@@ -13,6 +14,7 @@ type GameStore = {
   setOpponent: (uid: string) => void;
   setReady: () => void;
   setTurn: (turn: boolean) => void;
+  clearState: () => void;
 } 
 
 const useGameStore = create<GameStore>()(persist(set => ({
@@ -35,6 +37,11 @@ const useGameStore = create<GameStore>()(persist(set => ({
   },
   setTurn(turn: boolean) {
     set({ yourTurn: turn });
+  },
+  clearState() {
+    set((state: any) => ({
+      opponent: null
+    }))
   }
 })));
 

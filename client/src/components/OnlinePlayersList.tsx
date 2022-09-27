@@ -9,7 +9,7 @@ import { useGameStore } from '../store/authStore';
 const OnlinePlayersList = () => {
 
   const navigate = useNavigate();
-  const { setOpponent } = useGameStore();
+  const { setOpponent, clearState, opponent } = useGameStore();
   const { SocketDispatch } = useContext(SocketContext);
   const { socket, uid, users} = useContext(SocketContext).SocketState;
   const oponents = users.filter(user => user.socketId !== socket?.id);
@@ -46,6 +46,18 @@ const OnlinePlayersList = () => {
     });
   }, [SocketDispatch, navigate, setOpponent, socket])
   
+  useEffect(() => {
+
+    const updatedUsers = users.map(user => {
+      if(user.id === opponent?.uid || user.id === uid) {
+        user.inGame = false;
+      }
+      return user;
+    });
+    // SocketDispatch({ type: 'remove_invited', payload: users.filter(user => user.id === uid)[0].socketId});
+    SocketDispatch({type: 'update_users', payload: updatedUsers});
+    clearState();
+  }, [])
 
   return (
     <div>
