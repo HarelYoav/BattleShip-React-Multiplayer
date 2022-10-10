@@ -154,7 +154,6 @@ export class ServerSocket {
       const users = Object.values(this.users);
       socket.emit('in_game', users);
 
-      
     })
 
     

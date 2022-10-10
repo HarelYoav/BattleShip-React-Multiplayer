@@ -5,7 +5,11 @@ import { Button } from '@mui/material';
 import { useGameStore } from '../store/authStore';
 import './endGame.css';
 
-const EndGame = () => {
+interface IPorps {
+  createBoard: () => void;
+}
+
+const EndGame = ( { createBoard } : IPorps) => {
 
   const { clearState } = useGameStore();
   const { socket } = useContext(SocketContext).SocketState;
@@ -17,12 +21,21 @@ const EndGame = () => {
     navigate('/');
   }
 
+  const newGame = () => {
+    createBoard();
+  }
+
   return (
     <div id='glass-effect' className='p-10 items-center text-center'>
       <h1>Game Over</h1>
       <div className='flex justify-evenly p-5'>
         <div className='mr-2'>
-          <Button variant='outlined'>Play again</Button>
+          <Button 
+            variant='outlined'
+            onClick={newGame}
+          >
+            Play again
+          </Button>
         </div>
         <Button 
           variant='outlined'

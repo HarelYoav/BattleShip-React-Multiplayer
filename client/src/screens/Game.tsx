@@ -237,7 +237,7 @@ const Game = () => {
       </div>
       <div className='grid grid-cols-1 xl:grid-cols-2'>
         <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
-          {gameOver && <EndGame/>}
+          {gameOver && <EndGame createBoard={createBoard}/>}
         </div>
         {board && <Board board={board} cellClicked={cellClicked}/>}
         {isGame ? 
