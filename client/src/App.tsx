@@ -3,19 +3,23 @@ import NavBar from './components/Navbar';
 import Game from './screens/Game';
 import OnlinePlayersList from './components/OnlinePlayersList';
 import SocketContextComponent  from './contexts/Socket/SocketContextComponent';
+import { useGameStore } from "./store/authStore";
 import { v4 } from 'uuid';
 import './styles/globals.css';
 
 const App = () => {
-
-  const id = v4();
-
+  const {uid, setUid} = useGameStore();
+  console.log(uid)
+  if(uid === '') {
+    setUid(v4());
+  }
+  
   return (
     
     <div>
       <NavBar/>
       <div className='bg-gradient-to-r from-cyan-200 to-cyan-400'>
-        <SocketContextComponent id={id}>
+        <SocketContextComponent>
           <Routes>
             <Route path='/' element={ <OnlinePlayersList/> } />
             <Route path='/game' element={ <Game/>}/>

@@ -44,7 +44,7 @@ const OnlinePlayersList = () => {
       setOpponent(uid);
       navigate('/game');
     });
-  }, [SocketDispatch, navigate, setOpponent, socket])
+  }, [SocketDispatch, navigate, setOpponent, socket]);
   
   useEffect(() => {
 

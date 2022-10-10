@@ -73,7 +73,7 @@ const OpponentBoard = ({boardSize}: IProps) => {
 
 
   return (
-    <div className='border'>
+    <div className='border m-1'>
       {board?.map((row, xidx) => {
         return (
           <div key={xidx} className='flex m-auto inline-block'>

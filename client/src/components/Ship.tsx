@@ -27,7 +27,7 @@ const Ship = ({ship, selected, ships, setShips}: IProps) => {
     const updatedShips = [...ships]
     updatedShips[ship.id].rotate = rotate;
     setShips(updatedShips);
-
+    selectShip();
   }
 
   const selectShip = useCallback(() => {

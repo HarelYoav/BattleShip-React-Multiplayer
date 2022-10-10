@@ -2,10 +2,10 @@ import { PropsWithChildren, useEffect, useReducer, useState } from 'react';
 import { useSocket } from '../../hooks/useSocket';
 import { defaultSocketContextState, SocketContextProvider, SocketReducer } from './SocketContext';
 import { IUser } from '../../types';
+import { useGameStore } from '../../store/authStore';
 
 
 interface IProps extends PropsWithChildren{
-  id: string;
 }
 
 const SocketContext = (props : IProps) => {
@@ -18,6 +18,7 @@ const SocketContext = (props : IProps) => {
     reconnectionDelay: 5000,
     autoConnect: false
   });
+  const { uid } = useGameStore();
 
   const StartListenres = () => {
     //reconnect event
@@ -64,7 +65,7 @@ const SocketContext = (props : IProps) => {
     StartListenres();
 
     //send the handshake
-    SendHandShake(props.id);
+    SendHandShake(uid);
 
   }, []);
 

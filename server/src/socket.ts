@@ -137,6 +137,26 @@ export class ServerSocket {
       this.io.to(this.users[opponentUid].socketId).emit('you_won');
     });
 
+    socket.on('finish_game', () => {
+      const uid = this.GetUidFromSocketId(socket.id);
+      if(!uid) return;
+
+      const opponentUid = this.users[uid].playAgainst
+      if(!opponentUid) return;
+
+      this.users[uid].inGame = false;
+      this.users[uid].playAgainst = null;
+      this.users[opponentUid].inGame = false;
+      this.users[opponentUid].playAgainst = null;
+
+      this.io.to(this.users[opponentUid].socketId).emit('back_to_menu');
+
+      const users = Object.values(this.users);
+      socket.emit('in_game', users);
+
+      
+    })
+
     
     socket.on('disconnect', () => {
       console.info(`disconnected ${socket.id}`);

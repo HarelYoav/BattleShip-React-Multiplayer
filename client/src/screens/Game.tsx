@@ -1,4 +1,5 @@
-import { useContext, useState, useEffect, useCallback } from 'react'
+import { useContext, useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SocketContext from '../contexts/Socket/SocketContext';
 import Board from '../components/Board';
 import { IShip, ICell, IOpponentCell } from '../types';
@@ -7,6 +8,7 @@ import ShipsContainer from '../components/ShipsContainer';
 import OpponentBoard from '../components/OpponentBoard';
 import { shipsData } from '../utils/shipsData';
 import { useGameStore } from '../store/authStore';
+import EndGame from '../components/EndGame';
 
 
 
@@ -16,10 +18,12 @@ const Game = () => {
   const { uid, socket } = useContext(SocketContext).SocketState;
   const { opponent, setReady, yourTurn, setTurn } = useGameStore();
   const { selectedShip, setSelectedShip } = ShipStore();
+  const navigate = useNavigate();
   const [board, setBoard] = useState<ICell[][]>();
   const [ships, setShips] = useState<IShip[]>();
   const [isGame, setIsGame] = useState<boolean>();
   const [shipsDestroyed, setShipsDestroyed] = useState<number>(0);
+  const [gameOver, setGameOver] = useState(false);
 
   const createBoard = useCallback(() => {
     const newBoard = new Array(boardSize);
@@ -166,11 +170,19 @@ const Game = () => {
     socket?.emit('player_ready');
   }
 
+
+  const endGame = () => {
+    setGameOver(true);
+  }
+
   
   useEffect(() => {
     if(shipsDestroyed === 5) {
       console.log('you lose');
-      socket?.emit('game_over')
+      socket?.emit('game_over');
+
+      endGame();
+
     }
   }, [shipsDestroyed, socket])
 
@@ -201,16 +213,21 @@ const Game = () => {
     });
     socket?.on('you_won', () => {
       console.log('you won');
+      endGame();
     });
+    socket?.on('back_to_menu', () => {
+      navigate('/');
+    })
     return () => {
       socket?.off('opponent_ready');
       socket?.off('start_game');
+      socket?.off('back_to_menu');
     }
-  }, [setReady, setTurn, socket])
+  }, [navigate, setReady, setTurn, socket])
 
   return (
     <div
-      className='xl:w-[1200px] w-[350px] m-auto overflow-hidden h-[100vh]'
+      className='xl:w-[1200px] w-[350px] m-auto overflow-hidden h-[100vh] relative'
     > 
       <div className='p-5 text-center'>
         <h1>{`${uid} aginst: ${opponent?.uid}`}</h1>
@@ -219,6 +236,9 @@ const Game = () => {
         <h1>{isGame && opponent?.ready && (yourTurn ? 'Your turn' : 'Opponent turn')}</h1>
       </div>
       <div className='grid grid-cols-1 xl:grid-cols-2'>
+        <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
+          {gameOver && <EndGame/>}
+        </div>
         {board && <Board board={board} cellClicked={cellClicked}/>}
         {isGame ? 
           (  
@@ -233,8 +253,6 @@ const Game = () => {
           )
           
         }
-        
-        
       </div>
     </div>
   )

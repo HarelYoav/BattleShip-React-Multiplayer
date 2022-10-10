@@ -43,6 +43,7 @@ const PlayerCard = ({ user, uid, socket }: IPorps) => {
   const confirmInvitation = () => {
     socket?.emit('confirm_play', uid, user.socketId, (users: IUser[]) => {
       SocketDispatch({ type: 'update_users', payload: users});
+      SocketDispatch({type: 'remove_invited', payload: user.socketId});
       user.inGame = true;
       setOpponent(user.id);
       navigate('/game');
@@ -111,8 +112,6 @@ const PlayerCard = ({ user, uid, socket }: IPorps) => {
           <VideogameAssetSharpIcon/>
         </Typography>
       )}
-        
-        
       </CardActions>
     </Card>
   );
