@@ -20,12 +20,14 @@ const Game = () => {
   const { selectedShip, setSelectedShip } = ShipStore();
   const navigate = useNavigate();
   const [board, setBoard] = useState<ICell[][]>();
+  const [opponentBoard, setOpponentBoard] = useState<IOpponentCell[][]>();
   const [ships, setShips] = useState<IShip[]>();
   const [isGame, setIsGame] = useState<boolean>();
   const [shipsDestroyed, setShipsDestroyed] = useState<number>(0);
   const [gameOver, setGameOver] = useState(false);
 
-  const createBoard = useCallback(() => {
+  //Create current player board
+  const createGameBoard = useCallback(() => {
     const newBoard = new Array(boardSize);
     for(let row = 0; row < boardSize; row++) {
       newBoard[row] = new Array(boardSize)
@@ -54,6 +56,28 @@ const Game = () => {
     setShips(newShips);
 
   }, []);
+
+
+  //Create state for Opponent board
+  const createOpponentBoard = useCallback(() => {
+    const newBoard = new Array(boardSize);
+
+    for(let row = 0; row < boardSize; row++) {
+      newBoard[row] = new Array(boardSize)
+      for(let col = 0; col < boardSize; col++) {
+        const cell: IOpponentCell = {
+          coordinates: {
+            row: row,
+            col: col
+          },
+          state: 'free',
+        };
+        newBoard[row][col] = cell;
+      }
+    }
+
+    setOpponentBoard(newBoard);
+  }, [boardSize]);
 
 
   //This function is called when click on board cell
@@ -188,9 +212,9 @@ const Game = () => {
 
   useEffect(() => {
     if(!board) {
-      createBoard();
+      createGameBoard();
     }
-  }, [board, createBoard]);
+  }, [board, createGameBoard]);
 
   useEffect(() => {
     socket?.on('opponent_shoot', (coordinates: {row: number, col: number}) => {
@@ -236,15 +260,27 @@ const Game = () => {
         <h1>{isGame && opponent?.ready && (yourTurn ? 'Your turn' : 'Opponent turn')}</h1>
       </div>
       <div className='grid grid-cols-1 xl:grid-cols-2'>
-        <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
-          {gameOver && <EndGame createBoard={createBoard}/>}
-        </div>
+        {gameOver &&
+          <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
+              <EndGame 
+                createGameBoard={createGameBoard} 
+                createOpponentBoard={createOpponentBoard}
+                setIsGame={setIsGame}
+                setGameOver={setGameOver}
+                setShipsDestroyed={setShipsDestroyed}
+              />
+          </div>
+        }
         {board && <Board board={board} cellClicked={cellClicked}/>}
         {isGame ? 
           (  
             opponent?.ready ? 
               (
-                <OpponentBoard boardSize={boardSize}/>
+                <OpponentBoard 
+                  createOpponentBoard={createOpponentBoard}
+                  opponentBoard={opponentBoard}
+                  setOppnentBoard={setOpponentBoard}
+                />
               ) : (
                 'Waiting for opponent to be ready'
               )

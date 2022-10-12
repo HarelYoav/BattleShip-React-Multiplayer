@@ -6,10 +6,14 @@ import { useGameStore } from '../store/authStore';
 import './endGame.css';
 
 interface IPorps {
-  createBoard: () => void;
+  createGameBoard: () => void;
+  createOpponentBoard: () => void;
+  setIsGame: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  setGameOver: React.Dispatch<React.SetStateAction<boolean>>;
+  setShipsDestroyed: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const EndGame = ( { createBoard } : IPorps) => {
+const EndGame = ( { createGameBoard, createOpponentBoard, setIsGame, setGameOver, setShipsDestroyed } : IPorps) => {
 
   const { clearState } = useGameStore();
   const { socket } = useContext(SocketContext).SocketState;
@@ -22,7 +26,11 @@ const EndGame = ( { createBoard } : IPorps) => {
   }
 
   const newGame = () => {
-    createBoard();
+    setShipsDestroyed(0);
+    setGameOver(false);
+    setIsGame(false);
+    createGameBoard();
+    createOpponentBoard();
   }
 
   return (

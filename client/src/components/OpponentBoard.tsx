@@ -5,34 +5,17 @@ import { IOpponentCell } from '../types';
 import {useGameStore} from '../store/authStore';
 
 interface IProps {
-  boardSize: number;
+  createOpponentBoard: () => void;
+  opponentBoard: IOpponentCell[][] | undefined;
+  setOppnentBoard: React.Dispatch<React.SetStateAction<IOpponentCell[][] | undefined>>;
 }
 
-const OpponentBoard = ({boardSize}: IProps) => {
+const OpponentBoard = ({createOpponentBoard, opponentBoard, setOppnentBoard}: IProps) => {
   
   const { socket } = useContext(SocketContext).SocketState;
   const {yourTurn, setTurn} = useGameStore();
-  const [board, setBoard] = useState<IOpponentCell[][]>();
 
-  const createBoard = useCallback(() => {
-    const newBoard = new Array(boardSize);
-
-    for(let row = 0; row < boardSize; row++) {
-      newBoard[row] = new Array(boardSize)
-      for(let col = 0; col < boardSize; col++) {
-        const cell: IOpponentCell = {
-          coordinates: {
-            row: row,
-            col: col
-          },
-          state: 'free',
-        };
-        newBoard[row][col] = cell;
-      }
-    }
-
-    setBoard(newBoard);
-  }, [boardSize]);
+  
 
   const cellClicked = (cell: IOpponentCell) => {
     if(!yourTurn || cell.state !== 'free') return;
@@ -43,7 +26,7 @@ const OpponentBoard = ({boardSize}: IProps) => {
 
   const updateBoard = (coordinates: {row: number, col: number}, isHit: boolean) => {
     console.log('oppoBoard')
-    setBoard((board) => {
+    setOppnentBoard((board) => {
       if (board) {
         const updatedBoard = [...board];
         if(isHit) {
@@ -58,8 +41,8 @@ const OpponentBoard = ({boardSize}: IProps) => {
   };
 
   useEffect(() => {
-    if(!board) {
-      createBoard();
+    if(!opponentBoard) {
+      createOpponentBoard();
     }
     socket?.on('player_shoot_feedback', (cooridnates: { row:number, col:number}, isHit: boolean) => {
       updateBoard(cooridnates, isHit);
@@ -68,13 +51,13 @@ const OpponentBoard = ({boardSize}: IProps) => {
     return () => {
       socket?.off('player_shoot_feedback');
     }
-  }, [board, createBoard, socket]);
+  }, [opponentBoard, createOpponentBoard, socket]);
 
 
 
   return (
     <div className='border m-1'>
-      {board?.map((row, xidx) => {
+      {opponentBoard?.map((row, xidx) => {
         return (
           <div key={xidx} className='flex m-auto inline-block'>
             {row.map((cell, yidx) => {
