@@ -5,7 +5,15 @@ import OnlinePlayersList from './components/OnlinePlayersList';
 import SocketContextComponent  from './contexts/Socket/SocketContextComponent';
 import { useGameStore } from "./store/authStore";
 import { v4 } from 'uuid';
+import { Container, ThemeProvider, createTheme } from '@mui/material';
 import './styles/globals.css';
+
+
+const theme = createTheme({
+  palette: {
+    mode: 'dark'
+  },
+});
 
 const App = () => {
   const {uid, setUid} = useGameStore();
@@ -16,17 +24,15 @@ const App = () => {
   
   return (
     
-    <div>
+    <ThemeProvider theme={theme}>
       <NavBar/>
-      <div className='bg-gradient-to-r from-cyan-200 to-cyan-400'>
-        <SocketContextComponent>
-          <Routes>
-            <Route path='/' element={ <OnlinePlayersList/> } />
-            <Route path='/game' element={ <Game/>}/>
-          </Routes>
-        </SocketContextComponent >
-      </div>
-    </div>
+      <SocketContextComponent>
+        <Routes>
+          <Route path='/' element={ <OnlinePlayersList/> } />
+          <Route path='/game' element={ <Game/>}/>
+        </Routes>
+      </SocketContextComponent >
+    </ThemeProvider>
       
   );
 }

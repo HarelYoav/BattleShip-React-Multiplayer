@@ -15,7 +15,7 @@ const ShipsContainer = ({ships, setShips, startGame}: IProps) => {
   const shipToRender = ships?.some(ship => ship.isPlaced === false)
 
   return (
-    <div className='border grid grid-cols-1 xl:grid-cols-2 justify-content-center'>
+    <div className='grid grid-cols-2 justify-content-center'>
       {shipToRender ? ships?.map((ship, idx) => 
         <Ship 
           key={idx} 

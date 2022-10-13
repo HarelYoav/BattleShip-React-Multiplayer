@@ -14,7 +14,7 @@ type GameStore = {
   yourTurn: boolean;
   setUid: (uid: string) => void;
   setOpponent: (uid: string) => void;
-  setReady: () => void;
+  setOpponentReady: (ready: Boolean) => void;
   setTurn: (turn: boolean) => void;
   clearState: () => void;
 } 
@@ -33,11 +33,11 @@ const useGameStore = create<GameStore>()(persist(set => ({
     }
     set({opponent: opponent});
   },
-  setReady() {
+  setOpponentReady(ready: Boolean) {
     set((state: any) => ({
       opponent: {
         ...state.opponent, 
-        ready: true
+        ready: ready
       }
     }))
   },
@@ -47,7 +47,8 @@ const useGameStore = create<GameStore>()(persist(set => ({
   clearState() {
     set((state: any) => ({
       opponent: null,
-      yourTurn: false
+      yourTurn: false,
+      ready: false
     }))
   }
 })));

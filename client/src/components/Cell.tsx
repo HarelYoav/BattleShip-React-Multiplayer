@@ -1,4 +1,5 @@
 import { ICell, IOpponentCell } from '../types';
+import { Grid } from '@mui/material';
 
 interface IProps {
   cell: ICell | IOpponentCell;
@@ -34,12 +35,12 @@ const Cell = ({ cell, cellClicked }: IProps) => {
   }
   
   return (
-    <div
+    <Grid xs={1.2}
       className={style}
       role='button'
       onClick={() => cellClicked(cell)}
     >
-    </div>
+    </Grid>
   )
 }
 

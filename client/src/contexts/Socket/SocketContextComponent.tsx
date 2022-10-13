@@ -13,7 +13,7 @@ const SocketContext = (props : IProps) => {
   const { children } = props;
   const [SocketState, SocketDispatch] = useReducer(SocketReducer, defaultSocketContextState);
   const [loading, setLoading] = useState(true);
-  const socket = useSocket('ws://localhost:6005', {
+  const socket = useSocket('ws://localhost:5000', {
     reconnectionAttempts: 5,
     reconnectionDelay: 5000,
     autoConnect: false

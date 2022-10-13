@@ -130,9 +130,13 @@ export class ServerSocket {
     socket.on('game_over', () => {
       const uid = this.GetUidFromSocketId(socket.id);
       if(!uid) return;
+      this.users[uid].userReady = false;
+
 
       const opponentUid = this.users[uid].playAgainst
       if(!opponentUid) return;
+      this.users[opponentUid].userReady = false;
+
 
       this.io.to(this.users[opponentUid].socketId).emit('you_won');
     });

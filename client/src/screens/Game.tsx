@@ -9,6 +9,7 @@ import OpponentBoard from '../components/OpponentBoard';
 import { shipsData } from '../utils/shipsData';
 import { useGameStore } from '../store/authStore';
 import EndGame from '../components/EndGame';
+import { Container, Grid } from '@mui/material';
 
 
 
@@ -16,7 +17,7 @@ const Game = () => {
 
   const boardSize = 10;
   const { uid, socket } = useContext(SocketContext).SocketState;
-  const { opponent, setReady, yourTurn, setTurn } = useGameStore();
+  const { opponent, setOpponentReady, yourTurn, setTurn } = useGameStore();
   const { selectedShip, setSelectedShip } = ShipStore();
   const navigate = useNavigate();
   const [board, setBoard] = useState<ICell[][]>();
@@ -27,6 +28,7 @@ const Game = () => {
   const [gameOver, setGameOver] = useState(false);
 
   //Create current player board
+  //and create array of the player
   const createGameBoard = useCallback(() => {
     const newBoard = new Array(boardSize);
     for(let row = 0; row < boardSize; row++) {
@@ -47,11 +49,12 @@ const Game = () => {
     }
     setBoard(newBoard);
     
-    const newShips = new Array(shipsData.length);
+    const newShips: IShip[] = new Array(shipsData.length);
     for( let i = 0; i < newShips.length; i++) {
       newShips[i] = shipsData[i];
       newShips[i].isPlaced = false;
       newShips[i].rotate = false;
+      newShips[i].hits = 0;
     };
     setShips(newShips);
 
@@ -88,6 +91,8 @@ const Game = () => {
     else if(tmpCell.isShip) removeShipFromBoard(tmpCell.shipId);
   }
 
+  //This function remove a ship from the board
+  //used when player arrange his ships before the game start
   const removeShipFromBoard = (shipId: number) => {
 
     if(!board || !ships) return;
@@ -163,7 +168,9 @@ const Game = () => {
   }
 
 
-
+  //This function get call when the opponent is shoot
+  //update current player board (Hit or miss)
+  //and check if a ship was destroyed
   const updateBoard = useCallback((coordinates: {row: number, col: number}) => {
     if(!board || board[coordinates.row][coordinates.col].shootOn) return;
     setBoard((board) => {
@@ -189,26 +196,28 @@ const Game = () => {
 
   },[board, setTurn, ships, socket]);
 
+  //When player finish to arrange his ship and press play
+  //send notification to the server that the player is ready
   const startGame = () => {
     setIsGame(true);
     socket?.emit('player_ready');
   }
 
-
-  const endGame = () => {
+  //This function get called when one of the player wins
+  const endGame = useCallback(() => {
+    setOpponentReady(false);
     setGameOver(true);
-  }
+  }, [setOpponentReady])
 
   
   useEffect(() => {
     if(shipsDestroyed === 5) {
       console.log('you lose');
       socket?.emit('game_over');
-
       endGame();
 
     }
-  }, [shipsDestroyed, socket])
+  }, [endGame, shipsDestroyed, socket])
 
   useEffect(() => {
     if(!board) {
@@ -230,7 +239,7 @@ const Game = () => {
   useEffect(() => {
    
     socket?.on('opponent_ready', () => {
-      setReady();
+      setOpponentReady(true);
     });
     socket?.on('start_game', () => {
       setTurn(true);
@@ -247,50 +256,56 @@ const Game = () => {
       socket?.off('start_game');
       socket?.off('back_to_menu');
     }
-  }, [navigate, setReady, setTurn, socket])
+  }, [endGame, navigate, setOpponentReady, setTurn, socket])
 
   return (
-    <div
-      className='xl:w-[1200px] w-[350px] m-auto overflow-hidden h-[100vh] relative'
-    > 
-      <div className='p-5 text-center'>
-        <h1>{`${uid} aginst: ${opponent?.uid}`}</h1>
+    <Container maxWidth="xl">
+      <div >
+        <h1>{`${uid} against: ${opponent?.uid}`}</h1>
       </div>
       <div>
         <h1>{isGame && opponent?.ready && (yourTurn ? 'Your turn' : 'Opponent turn')}</h1>
       </div>
-      <div className='grid grid-cols-1 xl:grid-cols-2'>
-        {gameOver &&
-          <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
-              <EndGame 
-                createGameBoard={createGameBoard} 
-                createOpponentBoard={createOpponentBoard}
-                setIsGame={setIsGame}
-                setGameOver={setGameOver}
-                setShipsDestroyed={setShipsDestroyed}
-              />
-          </div>
-        }
-        {board && <Board board={board} cellClicked={cellClicked}/>}
-        {isGame ? 
-          (  
-            opponent?.ready ? 
-              (
-                <OpponentBoard 
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={opponent?.ready ? 6 : 8}>
+          {gameOver &&
+            <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
+                <EndGame 
+                  createGameBoard={createGameBoard} 
                   createOpponentBoard={createOpponentBoard}
-                  opponentBoard={opponentBoard}
-                  setOppnentBoard={setOpponentBoard}
+                  setIsGame={setIsGame}
+                  setGameOver={setGameOver}
+                  setShipsDestroyed={setShipsDestroyed}
                 />
-              ) : (
-                'Waiting for opponent to be ready'
-              )
-          ) : (
-            <ShipsContainer ships={ships} setShips={setShips} startGame={startGame}/>
-          )
-          
-        }
-      </div>
-    </div>
+            </div>
+          }
+          {board && <Board board={board} cellClicked={cellClicked}/>}
+        </Grid>
+        
+          {isGame ? 
+            (  
+              opponent?.ready ? 
+                (
+                  <Grid item xs={12} md={6}>
+                    <OpponentBoard 
+                      createOpponentBoard={createOpponentBoard}
+                      opponentBoard={opponentBoard}
+                      setOppnentBoard={setOpponentBoard}
+                    />
+                  </Grid>
+                ) : (
+                  'Waiting for opponent to be ready'
+                )
+            ) : (
+              <Grid item xs={12} md={4}>
+                <ShipsContainer ships={ships} setShips={setShips} startGame={startGame}/>
+              </Grid>
+            )
+            
+          }
+        
+      </Grid>
+    </Container>
   )
 }
 

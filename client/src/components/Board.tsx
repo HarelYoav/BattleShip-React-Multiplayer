@@ -1,5 +1,6 @@
 import {memo} from 'react'
 import Cell from './Cell';
+import {Grid, Container} from '@mui/material';
 import { ICell, IOpponentCell} from '../types';
 
 interface IProps {
@@ -10,10 +11,10 @@ interface IProps {
 const Board = memo(({board, cellClicked}: IProps) => {
 
   return (
-    <div className='border m-1'>
+    <Container maxWidth="md">
       {board?.map((row, xidx) => {
         return (
-          <div key={xidx} className='flex'>
+          <Grid container key={xidx}>
             {row && row.map((cell, yidx) => {
               return (
                 <Cell
@@ -23,10 +24,10 @@ const Board = memo(({board, cellClicked}: IProps) => {
                 />
               )
             })}
-          </div>
+          </Grid>
         )
       })}
-    </div>
+    </Container>
   )
 })
 
