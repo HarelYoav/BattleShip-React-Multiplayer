@@ -5,7 +5,7 @@ import OnlinePlayersList from './components/OnlinePlayersList';
 import SocketContextComponent  from './contexts/Socket/SocketContextComponent';
 import { useGameStore } from "./store/authStore";
 import { v4 } from 'uuid';
-import { Container, ThemeProvider, createTheme } from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material';
 import './styles/globals.css';
 
 

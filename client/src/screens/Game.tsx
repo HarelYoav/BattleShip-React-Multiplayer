@@ -9,7 +9,7 @@ import OpponentBoard from '../components/OpponentBoard';
 import { shipsData } from '../utils/shipsData';
 import { useGameStore } from '../store/authStore';
 import EndGame from '../components/EndGame';
-import { Container, Grid } from '@mui/material';
+import { Container, Grid, Typography } from '@mui/material';
 
 
 
@@ -95,7 +95,8 @@ const Game = () => {
   //used when player arrange his ships before the game start
   const removeShipFromBoard = (shipId: number) => {
 
-    if(!board || !ships) return;
+    //No board | no ships | already pressed start game
+    if(!board || !ships || isGame) return;
 
     const updatedShips = [...ships];
     const updatedBoard = [...board];
@@ -260,14 +261,14 @@ const Game = () => {
 
   return (
     <Container maxWidth="xl">
-      <div >
+      {/* <div >
         <h1>{`${uid} against: ${opponent?.uid}`}</h1>
-      </div>
+      </div> */}
       <div>
         <h1>{isGame && opponent?.ready && (yourTurn ? 'Your turn' : 'Opponent turn')}</h1>
       </div>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={opponent?.ready ? 6 : 8}>
+      <Grid container spacing={2} sx={{mt:1}}>
+        <Grid item xs={12} md={6}>
           {gameOver &&
             <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
                 <EndGame 
@@ -282,28 +283,26 @@ const Game = () => {
           {board && <Board board={board} cellClicked={cellClicked}/>}
         </Grid>
         
-          {isGame ? 
-            (  
-              opponent?.ready ? 
-                (
-                  <Grid item xs={12} md={6}>
-                    <OpponentBoard 
-                      createOpponentBoard={createOpponentBoard}
-                      opponentBoard={opponentBoard}
-                      setOppnentBoard={setOpponentBoard}
-                    />
-                  </Grid>
-                ) : (
-                  'Waiting for opponent to be ready'
-                )
+        {isGame ? (  
+          <Grid item xs={12} md={6}>
+            {opponent?.ready ? (
+              <OpponentBoard 
+                createOpponentBoard={createOpponentBoard}
+                opponentBoard={opponentBoard}
+                setOppnentBoard={setOpponentBoard}
+              />
             ) : (
-              <Grid item xs={12} md={4}>
-                <ShipsContainer ships={ships} setShips={setShips} startGame={startGame}/>
-              </Grid>
-            )
-            
-          }
-        
+              !gameOver && 
+                <Typography textAlign='center' sx={{mt: 1, p:1}}>
+                  Waiting for opponent to start the game
+                </Typography>
+            )}
+          </Grid>
+        ) : (
+          <Grid item xs={12} md={6}>
+            <ShipsContainer ships={ships} setShips={setShips} startGame={startGame}/>
+          </Grid>
+        )}
       </Grid>
     </Container>
   )

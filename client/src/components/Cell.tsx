@@ -1,10 +1,17 @@
 import { ICell, IOpponentCell } from '../types';
-import { Grid } from '@mui/material';
+import { Grid, Tooltip, ThemeProvider, createTheme } from '@mui/material';
+import LocalFireDepartmentTwoToneIcon from '@mui/icons-material/LocalFireDepartmentTwoTone';
 
 interface IProps {
   cell: ICell | IOpponentCell;
   cellClicked: (cell: ICell | IOpponentCell) => void;
 }
+
+const theme = createTheme({
+  palette: {
+    mode: 'dark'
+  },
+});
 
 const Cell = ({ cell, cellClicked }: IProps) => {
 
@@ -12,35 +19,48 @@ const Cell = ({ cell, cellClicked }: IProps) => {
     return 'isShip' in obj;
   }
 
-  let style = 'flex-1 xl:h-14 h-8 border rounded-sm flex items-center justify-center shadow-lg bg-white';
+  let style = 'flex-1 xl:h-14 h-8 border rounded-sm flex items-center justify-center shadow-lg';
+
+  let Icell;
+  let IopponentCell;
 
   if(istanceOfICell(cell)) {
-    const tmpCell = cell as ICell;
-    if(tmpCell.isShip && tmpCell.shootOn) {
-      style = 'flex-1 xl:h-14 h-8 border rounded-sm flex items-center justify-center shadow-lg bg-red-300';
-    }
-    else if(tmpCell.isShip) {
+    Icell = cell as ICell;
+    // if(tmpCell.isShip && tmpCell.shootOn) {
+    //   style = 'flex-1 xl:h-14 h-8 border rounded-sm flex items-center justify-center shadow-lg bg-red-300';
+    // }
+    if(Icell.isShip) {
       style = 'flex-1 xl:h-14 h-8 border rounded-sm flex items-center justify-center shadow-lg bg-gray-300';
-    } else if(tmpCell.shootOn) {
-      style = 'flex-1 xl:h-14 h-8 border rounded-sm flex items-center justify-center shadow-lg bg-yellow-300'
-    }
+    } 
 
   } else {
-    const tmpCell = cell as IOpponentCell;
-    if(tmpCell.state ==='missed') {
-      style = 'flex-1 xl:h-14 h-8 border rounded-sm flex items-center justify-center shadow-lg bg-green-300';
-    } else if(tmpCell.state === 'hit') {
+    IopponentCell = cell as IOpponentCell;
+    if(IopponentCell.state ==='missed') {
       style = 'flex-1 xl:h-14 h-8 border rounded-sm flex items-center justify-center shadow-lg bg-red-300';
+    } else if(IopponentCell.state === 'hit') {
+      style = 'flex-1 xl:h-14 h-8 border rounded-sm flex items-center justify-center shadow-lg bg-green-300';
     }
   }
   
   return (
-    <Grid xs={1.2}
+    <ThemeProvider theme={theme}>
+    <Grid item
+      xs={1.2}
       className={style}
       role='button'
       onClick={() => cellClicked(cell)}
     >
+      {((Icell?.isShip && Icell?.shootOn) || IopponentCell?.state === 'hit')
+        && 
+        <Tooltip title="Hit">
+          <LocalFireDepartmentTwoToneIcon style={{fill: "red"}}/>
+        </Tooltip>
+      }
+        
+        
+      {((!Icell?.isShip && Icell?.shootOn) || IopponentCell?.state === 'missed') && 'X'}
     </Grid>
+    </ThemeProvider>
   )
 }
 

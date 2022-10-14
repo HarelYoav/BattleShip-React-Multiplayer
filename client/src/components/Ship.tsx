@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useState} from 'react'
-import {Card, Box, CardActionArea, CardContent, Typography, Button} from '@mui/material';
+import {Grid, Card, Box, CardActionArea, CardContent, Typography} from '@mui/material';
 import CachedIcon from '@mui/icons-material/Cached';
 import { IShip } from '../types';
 import {ShipStore} from '../store/authStore';
@@ -45,29 +45,28 @@ const Ship = ({ship, selected, ships, setShips}: IProps) => {
   if (ship.isPlaced) return null;
 
   return (
- 
+    <Grid item xs={6}>
       <Card sx={{display: 'flex', maxWidth: 275 }} className={mainStyle}>
-          <CardContent sx={{flex: '1 0 auto'}}>
-            <CardActionArea onClick={selectShip}>
-              <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1 }}>
-                <img src="./ship.png" alt="noShip" className={iconStyle}/>
-                <Button
-                  onClick={rotateShip}
-                >
-                  <CachedIcon/>
-                </Button>
-              </Box>
-                <Typography variant="h5" component="div">
-                {ship.name}
-                </Typography>
-                <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                  Spaces: {ship.spaces}
-                </Typography>
-            </CardActionArea>
-            
-          </CardContent>
+        <CardContent sx={{flex: '1 0 auto'}}>
+          <CardActionArea onClick={selectShip}>
+            <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1 }} justifyContent='space-between'>
+              <img src="./ship.png" alt="noShip" className={iconStyle}/>
+              {/* <Button
+                onClick={rotateShip}
+              > */}
+                <CachedIcon onClick={rotateShip}/>
+              {/* </Button> */}
+            </Box>
+              <Typography variant="h5" component="div">
+              {ship.name}
+              </Typography>
+              <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                Spaces: {ship.spaces}
+              </Typography>
+          </CardActionArea>
+        </CardContent>
       </Card>
-
+    </Grid>          
   )
 }
 

@@ -1,8 +1,11 @@
-import {useEffect, useState, useContext, useCallback} from 'react'
+import {useEffect, useContext, useCallback} from 'react'
 import SocketContext from '../contexts/Socket/SocketContext';
 import Cell from './Cell';
 import { IOpponentCell } from '../types';
 import {useGameStore} from '../store/authStore';
+import {Grid, Container, Typography} from '@mui/material';
+
+
 
 interface IProps {
   createOpponentBoard: () => void;
@@ -24,7 +27,7 @@ const OpponentBoard = ({createOpponentBoard, opponentBoard, setOppnentBoard}: IP
 
   };
 
-  const updateBoard = (coordinates: {row: number, col: number}, isHit: boolean) => {
+  const updateBoard = useCallback((coordinates: {row: number, col: number}, isHit: boolean) => {
     console.log('oppoBoard')
     setOppnentBoard((board) => {
       if (board) {
@@ -38,7 +41,7 @@ const OpponentBoard = ({createOpponentBoard, opponentBoard, setOppnentBoard}: IP
       }
     });
     
-  };
+  },[setOppnentBoard]);
 
   useEffect(() => {
     if(!opponentBoard) {
@@ -51,15 +54,18 @@ const OpponentBoard = ({createOpponentBoard, opponentBoard, setOppnentBoard}: IP
     return () => {
       socket?.off('player_shoot_feedback');
     }
-  }, [opponentBoard, createOpponentBoard, socket]);
+  }, [opponentBoard, createOpponentBoard, socket, updateBoard]);
 
 
 
   return (
-    <div className='border m-1'>
+    <Container maxWidth="sm">
+      <Typography textAlign='center' sx={{m:1, p:1}}>
+        Opponent
+      </Typography>
       {opponentBoard?.map((row, xidx) => {
         return (
-          <div key={xidx} className='flex m-auto inline-block'>
+          <Grid container key={xidx}>
             {row.map((cell, yidx) => {
               return (
                 <Cell
@@ -69,10 +75,10 @@ const OpponentBoard = ({createOpponentBoard, opponentBoard, setOppnentBoard}: IP
                 />
               )
             })}
-          </div>
+          </Grid>
         )
       })}
-    </div>
+    </Container>
   )
 };
 
