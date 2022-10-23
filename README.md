@@ -1,3 +1,3 @@
 # BattleShip-React-Multiplayer
 
-Live: yoavharel.com/battle-ship
+[Live](https://www.google.com "Google's Homepage")
