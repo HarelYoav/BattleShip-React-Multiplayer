@@ -1,16 +1,20 @@
 import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import SocketContext  from '../contexts/Socket/SocketContext';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import Avatar from '@mui/material/Avatar';
 import VideogameAssetSharpIcon from '@mui/icons-material/VideogameAssetSharp';
 import { IUser } from '../types';
 import { Socket } from 'socket.io-client';
 import {useGameStore} from '../store/authStore';
+import {
+  Card,
+  Box, 
+  CardActions, 
+  CardContent, 
+  Button, 
+  Typography, 
+  Avatar 
+} from '@mui/material';
+
 
 
 interface IPorps {
@@ -60,34 +64,27 @@ const PlayerCard = ({ user, uid, socket }: IPorps) => {
   
   if (iInvited && !user.inGame)  {
     return (
-      <Card sx={{ maxWidth: 350, bgcolor: '#fff59d' }} color="success" variant="outlined" className='flex m-auto mb-1'>
+      <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} gap={'1rem'} px={2} py={1} my={1} sx={{border: 1, borderColor: 'grey.500', borderRadius: 1, bgcolor: '#fff59d'}}>
         <Avatar className='m-auto'>U</Avatar>
-        <CardContent>
-          <Typography variant="body2" color='white'>
-            {user.socketId} Invited you to play
+          <Typography variant="body2">
+            {user.name} Invited you to play
           </Typography>
-        </CardContent>
-        <CardActions>
           <Button 
             onClick={confirmInvitation}
             size="small"
           >
             Confirm
           </Button>
-        </CardActions>
-      </Card>
+      </Box>
     )
   }
 
   return (
-    <Card sx={{ maxWidth: 350 }} variant="outlined" className='flex m-auto mb-1'>
+    <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} px={2} py={1} my={1} sx={{ border: 1, borderColor: 'grey.500', borderRadius: 1 }} gap={'1rem'}>
       <Avatar className='m-auto'>U</Avatar>
-      <CardContent>
         <Typography variant="body2">
-          {user.socketId}
+          {user.name}
         </Typography>
-      </CardContent>
-      <CardActions>
       {!user.inGame ? (
         !isInvited ? 
           (!user.inGame &&
@@ -112,8 +109,7 @@ const PlayerCard = ({ user, uid, socket }: IPorps) => {
           <VideogameAssetSharpIcon/>
         </Typography>
       )}
-      </CardActions>
-    </Card>
+    </Box>
   );
 }
 

@@ -3,6 +3,7 @@ import { Socket, Server } from 'socket.io';
 
 interface IUser {
   id: string;
+  name: string;
   socketId: string;
   inGame: boolean;
   playAgainst: string | null;
@@ -37,7 +38,7 @@ export class ServerSocket {
   startListerners = (socket: Socket) => {
     console.info(`Message recvied from ${socket.id}`);
 
-    socket.on('handshake', (id: string, callback: (uid: string, users: IUser[]) => void) => {
+    socket.on('handshake', (id: string, name: string, callback: (uid: string, users: IUser[]) => void) => {
       console.info(`Handshake recived from ${socket.id}`);
 
       // check if reconnection
@@ -56,7 +57,7 @@ export class ServerSocket {
       }
 
       // Create new user
-      this.users[id] = {id: id, socketId: socket.id, inGame: false, playAgainst: null, userReady: false};
+      this.users[id] = {id: id, name: name, socketId: socket.id, inGame: false, playAgainst: null, userReady: false};
       const users = Object.values(this.users);
 
       console.info('Sending callback for handshake');

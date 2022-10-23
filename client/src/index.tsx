@@ -7,10 +7,10 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  // <React.StrictMode>
-    <BrowserRouter>
+  <React.StrictMode>
+    <BrowserRouter basename='/battle-ship'>
       <App />
     </BrowserRouter>
-  // </React.StrictMode>
+  </React.StrictMode>
 );
 

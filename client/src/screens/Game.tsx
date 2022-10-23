@@ -16,7 +16,7 @@ import { Container, Grid, Typography } from '@mui/material';
 const Game = () => {
 
   const boardSize = 10;
-  const { uid, socket } = useContext(SocketContext).SocketState;
+  const { socket } = useContext(SocketContext).SocketState;
   const { opponent, setOpponentReady, yourTurn, setTurn } = useGameStore();
   const { selectedShip, setSelectedShip } = ShipStore();
   const navigate = useNavigate();

@@ -13,12 +13,12 @@ const SocketContext = (props : IProps) => {
   const { children } = props;
   const [SocketState, SocketDispatch] = useReducer(SocketReducer, defaultSocketContextState);
   const [loading, setLoading] = useState(true);
-  const socket = useSocket('ws://localhost:5000', {
+  const socket = useSocket('ws://ec2-54-157-85-245.compute-1.amazonaws.com:5000', {
     reconnectionAttempts: 5,
     reconnectionDelay: 5000,
     autoConnect: false
   });
-  const { uid } = useGameStore();
+  const { uid, playerName } = useGameStore();
 
   const StartListenres = () => {
     //reconnect event
@@ -45,7 +45,7 @@ const SocketContext = (props : IProps) => {
   const SendHandShake = (id: string) => {
     console.info('Send HandShake to the server');
 
-    socket.emit('handshake', id, (uid: string, users: IUser[]) => {
+    socket.emit('handshake', id, playerName, (uid: string, users: IUser[]) => {
       console.info('User handshake callback');
       SocketDispatch({ type: 'update_uid', payload: uid});
       SocketDispatch({ type: 'update_users', payload: users});

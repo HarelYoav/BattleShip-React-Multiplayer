@@ -10,9 +10,11 @@ interface IOpponent {
 
 type GameStore = {
   uid: string;
+  playerName: string;
   opponent: IOpponent | null;
   yourTurn: boolean;
   setUid: (uid: string) => void;
+  setPlayerName: (name: string) => void;
   setOpponent: (uid: string) => void;
   setOpponentReady: (ready: Boolean) => void;
   setTurn: (turn: boolean) => void;
@@ -21,10 +23,14 @@ type GameStore = {
 
 const useGameStore = create<GameStore>()(persist(set => ({
   uid: '',
+  playerName: '',
   opponent: null,
   yourTurn: false,
   setUid(newUid: string) {
-    set({uid: newUid})
+    set({uid: newUid});
+  },
+  setPlayerName(name: string) {
+    set({playerName: name});
   },
   setOpponent(uid: string) {
     const opponent: IOpponent = {

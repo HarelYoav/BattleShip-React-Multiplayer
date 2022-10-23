@@ -4,6 +4,7 @@ import PlayerCard from './PlayerCard';
 import SocketContext  from '../contexts/Socket/SocketContext';
 import { IUser } from '../types';
 import { useGameStore } from '../store/authStore';
+import { Box, Typography } from '@mui/material';
 
 
 const OnlinePlayersList = () => {
@@ -12,7 +13,7 @@ const OnlinePlayersList = () => {
   const { setOpponent, clearState, opponent } = useGameStore();
   const { SocketDispatch } = useContext(SocketContext);
   const { socket, uid, users} = useContext(SocketContext).SocketState;
-  const oponents = users.filter(user => user.socketId !== socket?.id);
+  const opponents = users.filter(user => user.socketId !== socket?.id);
 
   useEffect(() => {
     //update users when new user connect
@@ -59,18 +60,29 @@ const OnlinePlayersList = () => {
     clearState();
   }, [])
 
+
+  
+
+
   return (
-    <div>
-      <h1>{socket?.id}</h1>
-      {oponents.map(user => 
-        <PlayerCard 
-          key={user.socketId} 
-          user={user} 
-          uid={uid} 
-          socket={socket}
-        />
+    <Box display={'flex'} justifyContent={'center'}>
+      
+      {opponents.length ? (
+        <Box textAlign={'center'}>
+          <Typography variant='h6'>Online Players</Typography>
+          {opponents.map(user => 
+            <PlayerCard 
+              key={user.socketId} 
+              user={user} 
+              uid={uid} 
+              socket={socket}
+            />
+          )}
+        </Box>
+        ) : (
+        "no"
       )}
-    </div>
+    </Box>
   )
 };
 
