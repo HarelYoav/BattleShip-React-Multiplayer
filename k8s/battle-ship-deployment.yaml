@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: battle-ship-frontend
-          image: yoavdocker89/battle-ship-frontend:2
+          image: yoavdocker89/battle-ship-frontend:1
           imagePullPolicy: Always
           ports:
           - containerPort: 80
@@ -66,7 +66,7 @@ spec:
     spec:
       containers:
         - name: battle-ship-backend
-          image: yoavdocker89/battle-ship-backend:latest
+          image: yoavdocker89/battle-ship-backend:1
           imagePullPolicy: Always
           ports:
           - containerPort: 5000
