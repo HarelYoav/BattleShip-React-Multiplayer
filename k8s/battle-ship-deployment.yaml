@@ -1,0 +1,112 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: battle-ship-frontend
+  labels:
+    app: battle-ship-frontend     
+spec:
+  selector:
+    matchLabels:
+      app: battle-ship-frontend
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      # unlike pod-nginx.yaml, the name is not included in the meta data as a unique name is
+      # generated from the deployment name
+      labels:
+        app: battle-ship-frontend     
+    spec:
+      containers:
+        - name: battle-ship-frontend
+          image: yoavdocker89/battle-ship-frontend:2
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 80
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: battle-ship-frontend
+  labels:
+    app: battle-ship-frontend
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+  selector:
+    app: battle-ship-frontend
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: battle-ship-backend
+  labels:
+    app: battle-ship-backend     
+spec:
+  selector:
+    matchLabels:
+      app: battle-ship-backend
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      # unlike pod-nginx.yaml, the name is not included in the meta data as a unique name is
+      # generated from the deployment name
+      labels:
+        app: battle-ship-backend     
+    spec:
+      containers:
+        - name: battle-ship-backend
+          image: yoavdocker89/battle-ship-backend:latest
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 5000
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: battle-ship-backend
+  labels:
+    app: battle-ship-backend
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 5000
+  selector:
+    app: battle-ship-backend
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.org/server-snippet: "proxy_ssl_verify off;"
+    # kubernetes.io/ingress.class: public
+    # nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # nginx.ingress.kubernetes.io/use-regex: "true"
+  name: battle-ship-ingress
+  namespace: portfolio
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: yoavharel.com
+      http:
+        paths:
+          - path: /battle-ship
+            pathType: Prefix
+            backend:
+              service:
+                name: battle-ship-frontend
+                port:
+                  number: 80
+          - path: /socket.io
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: battle-ship-backend
+                port:
+                  number: 5000

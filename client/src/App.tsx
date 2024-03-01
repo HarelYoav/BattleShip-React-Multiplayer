@@ -26,16 +26,12 @@ const App = () => {
     setUid(v4());
   }
 
-
-
-
   const connect = () => {
     if(name.length) {
       setPlayerName(name);
       setChooseName(true);
     }
   }
-  
 
   if(playerName === '') {
     return (

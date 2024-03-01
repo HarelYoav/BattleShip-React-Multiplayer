@@ -8,6 +8,6 @@ validateEnv();
 
 const app = new App([
     new PostController()
-], Number(process.env.PORT));
+], Number(5000));
 
 app.listen();

@@ -50,7 +50,7 @@ const Ship = ({ship, selected, ships, setShips}: IProps) => {
         <CardContent sx={{flex: '1 0 auto'}}>
           <CardActionArea onClick={selectShip}>
             <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1 }} justifyContent='space-between'>
-              <img src="./ship.png" alt="noShip" className={iconStyle}/>
+              <img src={ship.icon} alt="noShip" className={iconStyle}/>
               {/* <Button
                 onClick={rotateShip}
               > */}

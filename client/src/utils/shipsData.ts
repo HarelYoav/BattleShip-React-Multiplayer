@@ -2,8 +2,8 @@ export const shipsData = [
     {
       id: 0,
       name: 'Carrier',
-      icon: '',
-      spaces: 4,
+      icon: './ship.png',
+      spaces: 5,
       rotate: false,
       isPlaced: false,
       coordinates: {
@@ -14,9 +14,9 @@ export const shipsData = [
     },
     {
       id: 1,
-      name: 'Cruiser',
-      icon: '',
-      spaces: 3,
+      name: 'Battleship',
+      icon: './ship.png',
+      spaces: 4,
       rotate: false,
       isPlaced: false,
       coordinates: {
@@ -28,7 +28,7 @@ export const shipsData = [
     {
       id: 2,
       name: 'Cruiser',
-      icon: '',
+      icon: './ship.png',
       spaces: 3,
       rotate: false,
       isPlaced: false,
@@ -41,7 +41,7 @@ export const shipsData = [
     {
       id: 3,
       name: 'Cruiser',
-      icon: '',
+      icon: './ship.png',
       spaces: 3,
       rotate: false,
       isPlaced: false,
@@ -54,7 +54,7 @@ export const shipsData = [
     {
       id: 4,
       name: 'Submarine',
-      icon: '',
+      icon: './ship.png',
       spaces: 2,
       rotate: false,
       isPlaced: false,

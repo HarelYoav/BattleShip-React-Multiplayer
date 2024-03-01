@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push battle-ship-frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./client
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/battle-ship-frontend:${{github.run_number}}, ${{ secrets.DOCKERHUB_USERNAME }}/battle-ship-frontend:latest
+      - name: Build and push battle-ship-backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/battle-ship-backend:${{github.run_number}}, ${{ secrets.DOCKERHUB_USERNAME }}/battle-ship-backend:latest

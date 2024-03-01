@@ -21,7 +21,7 @@ const ShipsContainer = ({ships, setShips, startGame}: IProps) => {
           <Typography textAlign='center' sx={{m: 1, p:1}}>
             Place your ships
           </Typography>
-          <Grid container spacing={1}>
+          <Grid container spacing={1} display={'flex'} justifyContent={'center'}>
             {ships?.map((ship, idx) => 
               <Ship 
               key={idx} 

@@ -3,7 +3,7 @@ import SocketContext from '../contexts/Socket/SocketContext';
 import Cell from './Cell';
 import { IOpponentCell } from '../types';
 import {useGameStore} from '../store/authStore';
-import {Grid, Container, Typography} from '@mui/material';
+import {Grid, Container, Box, Typography} from '@mui/material';
 
 
 
@@ -59,9 +59,9 @@ const OpponentBoard = ({createOpponentBoard, opponentBoard, setOppnentBoard}: IP
 
 
   return (
-    <Container maxWidth="sm">
+    <Box maxWidth="sm">
       <Typography textAlign='center' sx={{m:1, p:1}}>
-        Opponent
+        Opponent Board
       </Typography>
       {opponentBoard?.map((row, xidx) => {
         return (
@@ -78,7 +78,7 @@ const OpponentBoard = ({createOpponentBoard, opponentBoard, setOppnentBoard}: IP
           </Grid>
         )
       })}
-    </Container>
+    </Box>
   )
 };
 

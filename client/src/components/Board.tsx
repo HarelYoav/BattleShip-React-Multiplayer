@@ -1,6 +1,6 @@
 import {memo} from 'react'
 import Cell from './Cell';
-import {Grid, Container, Typography} from '@mui/material';
+import {Grid,Box, Container, Typography} from '@mui/material';
 import { ICell, IOpponentCell} from '../types';
 
 interface IProps {
@@ -11,13 +11,13 @@ interface IProps {
 const Board = memo(({board, cellClicked}: IProps) => {
 
   return (
-    <Container maxWidth="sm">
+    <Box maxWidth="sm">
       <Typography textAlign='center' sx={{m: 1, p:1}}>
-        Your Board
+        Your Ships
       </Typography>
       {board?.map((row, xidx) => {
         return (
-          <Grid container key={xidx}>
+          <Grid container key={xidx} display={'flex'} justifyContent={'center'} alignItems={'center'}>
             {row && row.map((cell, yidx) => {
               return (
                 <Cell
@@ -30,7 +30,7 @@ const Board = memo(({board, cellClicked}: IProps) => {
           </Grid>
         )
       })}
-    </Container>
+    </Box>
   )
 })
 

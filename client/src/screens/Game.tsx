@@ -9,7 +9,7 @@ import OpponentBoard from '../components/OpponentBoard';
 import { shipsData } from '../utils/shipsData';
 import { useGameStore } from '../store/authStore';
 import EndGame from '../components/EndGame';
-import { Container, Grid, Typography } from '@mui/material';
+import { Container, Box, Grid, Typography } from '@mui/material';
 
 
 
@@ -26,6 +26,7 @@ const Game = () => {
   const [isGame, setIsGame] = useState<boolean>();
   const [shipsDestroyed, setShipsDestroyed] = useState<number>(0);
   const [gameOver, setGameOver] = useState(false);
+  const [win, setWin] = useState(false);
 
   //Create current player board
   //and create array of the player
@@ -206,7 +207,6 @@ const Game = () => {
 
   //This function get called when one of the player wins
   const endGame = useCallback(() => {
-    setOpponentReady(false);
     setGameOver(true);
   }, [setOpponentReady])
 
@@ -247,6 +247,7 @@ const Game = () => {
     });
     socket?.on('you_won', () => {
       console.log('you won');
+      setWin(true);
       endGame();
     });
     socket?.on('back_to_menu', () => {
@@ -261,13 +262,10 @@ const Game = () => {
 
   return (
     <Container maxWidth="xl">
-      {/* <div >
-        <h1>{`${uid} against: ${opponent?.uid}`}</h1>
-      </div> */}
-      <div>
-        <h1>{isGame && opponent?.ready && (yourTurn ? 'Your turn' : 'Opponent turn')}</h1>
-      </div>
-      <Grid container spacing={2} sx={{mt:1}}>
+      <Box display={'flex'} justifyContent={'center'} alignItems={'center'} mt={1} py={1}>
+        <Typography variant='h6'>{isGame && opponent?.ready && (yourTurn ? 'Your turn' : 'Opponent turn')}</Typography>
+      </Box>
+      <Grid container spacing={2} pb={2} display={'flex'} flexDirection={{xs: isGame ? 'column-reverse' : 'column', md: 'row'}}>
         <Grid item xs={12} md={6}>
           {gameOver &&
             <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
@@ -277,6 +275,7 @@ const Game = () => {
                   setIsGame={setIsGame}
                   setGameOver={setGameOver}
                   setShipsDestroyed={setShipsDestroyed}
+                  win={win}
                 />
             </div>
           }

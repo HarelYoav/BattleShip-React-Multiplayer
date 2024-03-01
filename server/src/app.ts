@@ -14,6 +14,7 @@ class App {
     public express: Application;
     public httpServer: Server;
     public port: number;
+    
 
     constructor(controllers: Controller[], port: number) {
         //express application

@@ -1,6 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import PlayerCard from './PlayerCard';
+import NoPlayers from './NoPlayers';
 import SocketContext  from '../contexts/Socket/SocketContext';
 import { IUser } from '../types';
 import { useGameStore } from '../store/authStore';
@@ -80,7 +81,7 @@ const OnlinePlayersList = () => {
           )}
         </Box>
         ) : (
-        "no"
+        <NoPlayers/>
       )}
     </Box>
   )

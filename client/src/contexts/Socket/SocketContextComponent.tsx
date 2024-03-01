@@ -13,7 +13,7 @@ const SocketContext = (props : IProps) => {
   const { children } = props;
   const [SocketState, SocketDispatch] = useReducer(SocketReducer, defaultSocketContextState);
   const [loading, setLoading] = useState(true);
-  const socket = useSocket('ws://ec2-54-157-85-245.compute-1.amazonaws.com:5000', {
+  const socket = useSocket('wss://yoavharel.com', {
     reconnectionAttempts: 5,
     reconnectionDelay: 5000,
     autoConnect: false

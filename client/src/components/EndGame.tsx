@@ -11,11 +11,12 @@ interface IPorps {
   setIsGame: React.Dispatch<React.SetStateAction<boolean | undefined>>;
   setGameOver: React.Dispatch<React.SetStateAction<boolean>>;
   setShipsDestroyed: React.Dispatch<React.SetStateAction<number>>;
+  win: boolean;
 }
 
-const EndGame = ( { createGameBoard, createOpponentBoard, setIsGame, setGameOver, setShipsDestroyed } : IPorps) => {
+const EndGame = ( { createGameBoard, createOpponentBoard, setIsGame, setGameOver, setShipsDestroyed, win } : IPorps) => {
 
-  const { clearState } = useGameStore();
+  const { clearState, setOpponentReady } = useGameStore();
   const { socket } = useContext(SocketContext).SocketState;
   const navigate = useNavigate();
 
@@ -29,13 +30,14 @@ const EndGame = ( { createGameBoard, createOpponentBoard, setIsGame, setGameOver
     setShipsDestroyed(0);
     setGameOver(false);
     setIsGame(false);
+    setOpponentReady(false);
     createGameBoard();
     createOpponentBoard();
   }
 
   return (
     <div id='glass-effect' className='p-10 items-center text-center'>
-      <h1>Game Over</h1>
+      <h1>{win ? 'You Win!' : 'You Lose'}</h1>
       <div className='flex justify-evenly p-5'>
         <div className='mr-2'>
           <Button 
